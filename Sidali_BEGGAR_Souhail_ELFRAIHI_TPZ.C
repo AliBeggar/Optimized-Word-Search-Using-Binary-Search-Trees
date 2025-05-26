@@ -50,15 +50,18 @@
     getchar(); // Wait for Enter key
   }
 
-  /* Function to display a centered title */
-  void displayTitle(const char* title, const char* color) {
+  /* Function to display a menu header */
+  void displayMenu(const char* title) {
+    printf("\n\n\n");
+    printf("%s", WHITE);
+    printf("\t\t\t  ________________________________________________  \n");
+    printf("\t\t\t /                                                \\ \n");
+    printf("\t\t\t|%s%s%s", BG_BLACK, RED, BOLD);
     int len = strlen(title);
     int padding = (50 - len) / 2;
-    printf("\n%s%s%s", BG_BLACK, color, BOLD);
-    for(int i = 0; i < 50; i++) printf("=");
-    printf("\n%*s%s%*s\n", padding, "", title, padding, "");
-    for(int i = 0; i < 50; i++) printf("=");
-    printf("%s\n", RESET);
+    printf("%*s%s%*s", padding, "", title, padding, "");
+    printf("%s|\n", RESET);
+    printf("\t\t\t \\________________________________________________/ \n\n");
   }
 
   /** -Implementation- **\: BINARY SEARCH TREE OF STRINGS**/
@@ -485,8 +488,6 @@ void Allocate_node_As(Pointer_As *P)
   Pointer_As Next_inorder (Pointer_As *P) ;
   void Range_search (Pointer_As *Bst1 , Pointer_As *Bst2 , Pointer_As *Bst3 , string255 *Word_1 , string255 *Word_2);
   void Write_file (FILE *F , int *Lines);
-  void Display_bst(Pointer_As *Root);
-  void printNodeWithChildren(Pointer_As node);
 
   /*------------------------------------------------------------------------------------------*/
   void Create_file (FILE *F , int *Lines)
@@ -693,11 +694,9 @@ void Allocate_node_As(Pointer_As *P)
        firstChar[0] = Node_value_As(*P)[0];
        firstChar[1] = '\0';
        
-       if(strcmp(firstChar, "X") == 0 || strcmp(firstChar, "Y") == 0) {
-           printf(" %s%s%s", MAGENTA, Node_value_As(*P), RESET);
-       } else if(strcmp(firstChar, "a") == 0) {
-           printf(" %s%s%s", CYAN, Node_value_As(*P), RESET);
-       } else if(strcmp(firstChar, "a") > 0) {
+       if(strcmp(firstChar, "X") == 0 || strcmp(firstChar, "Y") == 0 || strcmp(firstChar, "a") == 0) {
+           printf(" %s%s%s", RED, Node_value_As(*P), RESET);
+       } else if(strcmp(firstChar, "a") > 0 || strcmp(firstChar, "Z") == 0) {
            printf(" %s%s%s", GREEN, Node_value_As(*P), RESET);
        } else {
            printf(" %s%s%s", YELLOW, Node_value_As(*P), RESET);
@@ -902,50 +901,57 @@ void Allocate_node_As(Pointer_As *P)
      Cmpt  =  0 ;
      Current_lvl  =  1 ;
      
+     // Print header for first level
+     printf("\n%s%s%sLEVEL %d:%s\n", BG_BLACK, BOLD, CYAN, Current_lvl, RESET);
+     
      while( ( ! Empty_queue_FAs ( Q ) )) {
        Dequeue_FAs ( Q , &N ) ;
        Dequeue_Fi ( L , &Level ) ;
        
-       if( ( ( Is_xyz ( & N ) ) && ( Current_lvl != Level ) )) {
-         printf("\n%s%sLEVEL %d:%s %s%d words%s\n", 
-                BOLD, BLUE, Current_lvl, RESET, GREEN, Cmpt, RESET);
-         Current_lvl  =  Level ;
-         Cmpt  =  0 ;
-         printf("%s", CYAN); // Start new level color
-       } ;
+       // If we've moved to a new level, print summary of previous level and header for new level
+       if( Current_lvl != Level ) {
+         printf("\n%s%s%s%d words in level %d%s\n", 
+                BG_BLACK, BOLD, RED, Cmpt, Current_lvl, RESET);
+         Current_lvl = Level;
+         printf("\n%s%s%sLEVEL %d:%s\n", BG_BLACK, BOLD, CYAN, Current_lvl, RESET);
+         Cmpt = 0;
+       }
        
-       if( ( Is_xyz ( & N ) )) {
+       if( Is_xyz ( & N ) ) {
          firstChar = (char*) malloc(2 * sizeof(char));
          firstChar[0] = Node_value_As(N)[0];
          firstChar[1] = '\0';
          
-         if(strcmp(firstChar, "X") == 0 || strcmp(firstChar, "Y") == 0) {
-             printf(" %s%s%s", MAGENTA, Node_value_As(N), CYAN);
+         if(strcmp(firstChar, "X") == 0 || strcmp(firstChar, "Y") == 0 || strcmp(firstChar, "a") == 0) {
+             printf(" %s%s%s", RED, Node_value_As(N), RESET);
+         } else if(strcmp(firstChar, "Z") == 0 || strcmp(firstChar, "a") > 0) {
+             printf(" %s%s%s", GREEN, Node_value_As(N), RESET);
          } else {
-             printf(" %s", Node_value_As(N));
+             printf(" %s%s%s", YELLOW, Node_value_As(N), RESET);
          }
          
          free(firstChar);
-         Cmpt  =  Cmpt + 1 ;
-       } ;
+         Cmpt = Cmpt + 1;
+       }
        
+       // Process children nodes
        if( ( Lc_As ( N ) != NULL ) || ( Rc_As ( N ) != NULL )) {
-         Level  =  Level + 1 ;
-         if( ( Lc_As ( N ) != NULL )) {
-           Enqueue_FAs ( Q , Lc_As ( N ) ) ;
-           Enqueue_Fi ( L , Level ) ;
-         } ;
+         Level = Level + 1;
+         if( Lc_As ( N ) != NULL ) {
+           Enqueue_FAs ( Q , Lc_As ( N ) );
+           Enqueue_Fi ( L , Level );
+         }
          
-         if( ( Rc_As ( N ) != NULL )) {
-           Enqueue_FAs ( Q , Rc_As ( N ) ) ;
-           Enqueue_Fi ( L , Level ) ;
-         } ;
-       } ;
-     } ;
+         if( Rc_As ( N ) != NULL ) {
+           Enqueue_FAs ( Q , Rc_As ( N ) );
+           Enqueue_Fi ( L , Level );
+         }
+       }
+     }
      
-     printf("\n%s%sLEVEL %d:%s %s%d words%s\n", 
-            BOLD, BLUE, Current_lvl, RESET, GREEN, Cmpt, RESET);
-    
+     // Print summary for the last level
+     printf("\n%s%s%s%d words in level %d%s\n", 
+            BG_BLACK, BOLD, RED, Cmpt, Current_lvl, RESET);
     }
   /*------------------------------------------------------------------------------------------*/
   /* use BST-1 only */
@@ -981,25 +987,24 @@ void Allocate_node_As(Pointer_As *P)
       Pointer_As _Px2=NULL;
 
       /** Body of function **/
-     if( ( *P != NULL )) {
-       if( ( Is_xyz ( & *P ) )) {
-         _Px1 =  Lc_As ( *P ) ;
-         Search_bst1 ( &_Px1, & *Word , & *Result ) ;
-         if( (strcmp( *Word, Node_value_As ( *P )) == 0  )) {
-           *Result  =  *P ;
-           *P  =  NULL ;
-          
-         } ;
-         if( ( *P != NULL )) {
-           _Px2 =  Rc_As ( *P ) ;
-           Search_bst1 ( &_Px2, & *Word , & *Result ) ;
-          
-         } ;
-        
-       } ;
-      
-     } ;
-    
+     if( *P != NULL ) {
+       // Check if current node matches the word
+       if( strcmp( *Word, Node_value_As ( *P )) == 0 ) {
+         *Result = *P;
+         return; // Found the word, exit the function
+       }
+       
+       // If the word is less than current node, search left subtree
+       if( strcmp( *Word, Node_value_As ( *P )) < 0 ) {
+         _Px1 = Lc_As ( *P );
+         Search_bst1 ( &_Px1, Word, Result );
+       }
+       // If the word is greater than current node, search right subtree
+       else {
+         _Px2 = Rc_As ( *P );
+         Search_bst1 ( &_Px2, Word, Result );
+       }
+     }
     }
   /*------------------------------------------------------------------------------------------*/
   void Search_bst2 (Pointer_As *P , string255 *Word , Pointer_As *Result)
@@ -1009,25 +1014,24 @@ void Allocate_node_As(Pointer_As *P)
       Pointer_As _Px2=NULL;
 
       /** Body of function **/
-     if( ( *P != NULL )) {
-       if( ( ! Is_xyz ( & *P ) )) {
-         _Px1 =  Lc_As ( *P ) ;
-         Search_bst2 ( &_Px1, & *Word , & *Result ) ;
-         if( (strcmp( *Word, Node_value_As ( *P )) == 0  )) {
-           *Result  =  *P ;
-           *P  =  NULL ;
-          
-         } ;
-         if( ( *P != NULL )) {
-           _Px2 =  Rc_As ( *P ) ;
-           Search_bst2 ( &_Px2, & *Word , & *Result ) ;
-          
-         } ;
-        
-       } ;
-      
-     } ;
-    
+     if( *P != NULL ) {
+       // Check if current node matches the word
+       if( strcmp( *Word, Node_value_As ( *P )) == 0 ) {
+         *Result = *P;
+         return; // Found the word, exit the function
+       }
+       
+       // If the word is less than current node, search left subtree
+       if( strcmp( *Word, Node_value_As ( *P )) < 0 ) {
+         _Px1 = Lc_As ( *P );
+         Search_bst2 ( &_Px1, Word, Result );
+       }
+       // If the word is greater than current node, search right subtree
+       else {
+         _Px2 = Rc_As ( *P );
+         Search_bst2 ( &_Px2, Word, Result );
+       }
+     }
     }
   /*------------------------------------------------------------------------------------------*/
   void Search_bst3 (Pointer_As *P , string255 *Word , Pointer_As *Result)
@@ -1037,31 +1041,32 @@ void Allocate_node_As(Pointer_As *P)
       Pointer_As _Px2=NULL;
 
       /** Body of function **/
-     if( ( *P != NULL )) {
-       if( ( ! Is_xyz ( & *P ) )) {
-         _Px1 =  Lc_As ( *P ) ;
-         Search_bst3 ( &_Px1, & *Word , & *Result ) ;
-         if( (strcmp( *Word, Node_value_As ( *P )) == 0  )) {
-           *Result  =  *P ;
-           *P  =  NULL ;
-          
-         } ;
-         if( ( *P != NULL )) {
-           _Px2 =  Rc_As ( *P ) ;
-           Search_bst3 ( &_Px2, & *Word , & *Result ) ;
-          
-         } ;
-        
-       } ;
-      
-     } ;
-    
+     if( *P != NULL ) {
+       // Check if current node matches the word
+       if( strcmp( *Word, Node_value_As ( *P )) == 0 ) {
+         *Result = *P;
+         return; // Found the word, exit the function
+       }
+       
+       // If the word is less than current node, search left subtree
+       if( strcmp( *Word, Node_value_As ( *P )) < 0 ) {
+         _Px1 = Lc_As ( *P );
+         Search_bst3 ( &_Px1, Word, Result );
+       }
+       // If the word is greater than current node, search right subtree
+       else {
+         _Px2 = Rc_As ( *P );
+         Search_bst3 ( &_Px2, Word, Result );
+       }
+     }
     }
   /*------------------------------------------------------------------------------------------*/
   void Single_word_search (Pointer_As *P1 , Pointer_As *P2 , Pointer_As *P3 , string255 *Word , Pointer_As *Result)
     {
-
       /** Body of function **/
+     // Initialize Result to NULL before search
+     *Result = NULL;
+     
      if( ( (strcmp( Caract ( *Word , 1 ), "X") == 0  ) || (strcmp( Caract ( *Word , 1 ), "Y") == 0  ) || (strcmp( Caract ( *Word , 1 ), "a") == 0  ) )) {
        Search_bst1 ( & *P1 , & *Word , & *Result ) ;
        }
@@ -1136,14 +1141,14 @@ void Allocate_node_As(Pointer_As *P)
      Upper_bound  =  False ;
      
      if (Result_node == NULL) {
-         printf("%s%sNo words found in the specified range.%s\n", RED, BOLD, RESET);
+         printf("%s%s%sNo words found in the specified range.%s\n", BG_BLACK, RED, BOLD, RESET);
          return;
      }
      
      // Make a copy of the starting node
      Current_node = Result_node;
      
-     printf("%s[", YELLOW);
+     printf("%s%s[", BG_BLACK, WHITE);
      
      while( ( ( Current_node != NULL ) && ( ! Upper_bound ) )) {
        firstChar = (char*) malloc(2 * sizeof(char));
@@ -1152,19 +1157,17 @@ void Allocate_node_As(Pointer_As *P)
        
        // Add comma between words after the first one
        if (wordCount > 0) {
-           printf("%s, ", YELLOW);
+           printf("%s, ", WHITE);
        }
        wordCount++;
        
        // Color words differently based on first character
-       if(strcmp(firstChar, "X") == 0 || strcmp(firstChar, "Y") == 0) {
-           printf("%s%s%s", MAGENTA, Node_value_As(Current_node), YELLOW);
-       } else if(strcmp(firstChar, "a") == 0) {
-           printf("%s%s%s", CYAN, Node_value_As(Current_node), YELLOW);
-       } else if(strcmp(firstChar, "a") > 0) {
-           printf("%s%s%s", GREEN, Node_value_As(Current_node), YELLOW);
+       if(strcmp(firstChar, "X") == 0 || strcmp(firstChar, "Y") == 0 || strcmp(firstChar, "a") == 0) {
+           printf("%s%s%s", RED, Node_value_As(Current_node), WHITE);
+       } else if(strcmp(firstChar, "a") > 0 || strcmp(firstChar, "Z") == 0) {
+           printf("%s%s%s", GREEN, Node_value_As(Current_node), WHITE);
        } else {
-           printf("%s%s%s", BLUE, Node_value_As(Current_node), YELLOW);
+           printf("%s%s%s", YELLOW, Node_value_As(Current_node), WHITE);
        }
        
        free(firstChar);
@@ -1178,12 +1181,12 @@ void Allocate_node_As(Pointer_As *P)
        }
      }
      
-     printf("%s]%s", YELLOW, RESET);
+     printf("%s]%s", WHITE, RESET);
      
      if (wordCount == 0) {
-         printf("\n%s%sNo words found in the specified range.%s", RED, BOLD, RESET);
+         printf("\n%s%s%sNo words found in the specified range.%s", BG_BLACK, RED, BOLD, RESET);
      } else {
-         printf("\n%s%sFound %d words in the range.%s", GREEN, BOLD, wordCount, RESET);
+         printf("\n%s%s%sFound %d words in the range.%s", BG_BLACK, CYAN, BOLD, wordCount, RESET);
      }
     }
   /*------------------------------------------------------------------------------------------*/
@@ -1224,28 +1227,20 @@ void Allocate_node_As(Pointer_As *P)
  /*------------------------------------------------------------------------------------------*/
 void showMainMenu() {
     clearScreen();
-    printf("\n\n\n");
-    printf("%s", WHITE);
-    printf("\t\t\t  ___________________________________________________________  \n");
-    printf("\t\t\t /                                                           \\ \n");
-    printf("\t\t\t|%s%s%s", RED, BOLD, WHITE);
-    printf("                      T P - Z  M E N U                       ");
-    printf("%s|\n", RESET);
-    printf("\t\t\t \\___________________________________________________________/ \n\n");
+    displayMenu("T P - Z  M E N U");
 
-    printf("\t\t\t+-------------------------------------------------------------+\n");
-    printf("\t\t\t|        %s1.%s %sGenerate random words file%s                        |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s2.%s %sBuild BST variants (1, 2, 3)%s                      |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s3.%s %sCount X/Y/Z words%s                                 |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s4.%s %sDisplay tree depths%s                               |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s5.%s %sShow X/Y/Z words by level%s                         |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s6.%s %sPerform inorder traversal%s                         |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s7.%s %sSearch for a word%s                                 |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s8.%s %sRange search [Word1, Word2]%s                       |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s9.%s %sDisplay BST%s                                       |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t|        %s0.%s %sExit program%s                                      |\n", RED, RESET, WHITE, RESET);
-    printf("\t\t\t+-------------------------------------------------------------+\n\n");
-    printf("\t\t\t\t%s>>>%s Enter your choice: %s", RED, WHITE, RESET);
+    printf("\t\t\t+--------------------------------------------------+\n");
+    printf("\t\t\t|   %s1.%s %sGenerate random words file%s                  |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s2.%s %sBuild BST variants (1, 2, 3)%s                |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s3.%s %sCount X/Y/Z words%s                           |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s4.%s %sDisplay tree depths%s                         |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s5.%s %sShow X/Y/Z words by level%s                   |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s6.%s %sPerform inorder traversal%s                   |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s7.%s %sSearch for a word%s                           |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s8.%s %sRange search [Word1, Word2]%s                 |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s0.%s %sExit program%s                                |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t+--------------------------------------------------+\n\n");
+    printf("\t\t\t%s>>>%s Enter your choice: %s", RED, WHITE, RESET);
 }
 
 int main(int argc, char *argv[])
@@ -1269,7 +1264,7 @@ int main(int argc, char *argv[])
 
         if (Choice == 1) {
             clearScreen();
-            displayTitle("GENERATE FILE WITH RANDOM WORDS", CYAN);
+            displayMenu("GENERATE FILE WITH RANDOM WORDS ");
             printf("\n\t%s->%s How many words does your file contain: ", GREEN, RESET);
             scanf(" %d", &Lines);
             printf("\n\t%sGenerating file with random words...%s\n", RED, RESET);
@@ -1285,7 +1280,7 @@ int main(int argc, char *argv[])
                 continue;
             }
             clearScreen();
-            displayTitle("CONSTRUCTING BST VARIANTS", CYAN);
+            displayMenu("CONSTRUCTING BST VARIANTS ");
             printf("\n\t%sConstructing BST-1, BST-2, and BST-3 from file...%s\n", WHITE, RESET);
 
             printf("\t%sBuilding BST-1...%s", RED, RESET);
@@ -1310,7 +1305,7 @@ int main(int argc, char *argv[])
                 continue;
             }
             clearScreen();
-            displayTitle("COUNTING WORDS STARTING WITH X, Y, AND Z", CYAN);
+            displayMenu("COUNTING WORDS STARTING WITH X, Y, AND Z");
             Cmpt = 0;
             Count_xyz(&Bst1, &Cmpt);
             printf("\n\t%sThere are: %s%d%s words that start with X, Y or Z\n", RED, GREEN, Cmpt, RESET);
@@ -1323,7 +1318,7 @@ int main(int argc, char *argv[])
                 continue;
             }
             clearScreen();
-            displayTitle("TREE DEPTH ANALYSIS", CYAN);
+            displayMenu("TREE DEPTH ANALYSIS ");
             Depth1 = Depth(&Bst1);
             Depth2 = Depth(&Bst2);
             Depth3 = Depth(&Bst3);
@@ -1339,23 +1334,26 @@ int main(int argc, char *argv[])
                 continue;
             }
             clearScreen();
-            displayTitle("DISPLAY NODES BY LEVEL", CYAN);
-            printf("\n\t%sSelect BST variant:%s\n", RED, RESET);
-            printf("\t  %s1.%s BST-1\n", MAGENTA, RESET);
-            printf("\t  %s2.%s BST-2\n", MAGENTA, RESET);
-            printf("\t  %s3.%s BST-3\n", MAGENTA, RESET);
-            printf("\n\t%s->%s Enter your choice: ", WHITE, RESET);
+            displayMenu("DISPLAY NODES BY LEVEL");
+            
+            printf("\t\t\t+-------------------------------------------------------------+\n");
+            printf("\t\t\t|        %s1.%s %sBST-1%s                                           |\n", RED, RESET, WHITE, RESET);
+            printf("\t\t\t|        %s2.%s %sBST-2%s                                           |\n", RED, RESET, WHITE, RESET);
+            printf("\t\t\t|        %s3.%s %sBST-3%s                                           |\n", RED, RESET, WHITE, RESET);
+            printf("\t\t\t+-------------------------------------------------------------+\n\n");
+            printf("\t\t\t\t%s>>>%s Enter your choice: %s", RED, WHITE, RESET);
+            
             scanf(" %d", &Choice_level);
 
             clearScreen();
             if (Choice_level == 1) {
-                displayTitle("BST-1 LEVEL ANALYSIS", CYAN);
+                displayMenu("BST-1 LEVEL ANALYSIS");
                 Xyz_in_level(&Bst1);
             } else if (Choice_level == 2) {
-                displayTitle("BST-2 LEVEL ANALYSIS", CYAN);
+                displayMenu("BST-2 LEVEL ANALYSIS");
                 Xyz_in_level(&Bst2);
             } else if (Choice_level == 3) {
-                displayTitle("BST-3 LEVEL ANALYSIS", CYAN);
+                displayMenu("BST-3 LEVEL ANALYSIS");
                 Xyz_in_level(&Bst3);
             } else {
                 printf(RED "\n\tInvalid choice! Please select 1, 2, or 3.\n" RESET);
@@ -1369,24 +1367,27 @@ int main(int argc, char *argv[])
                 continue;
             }
             clearScreen();
-            displayTitle("DISPLAY BST", CYAN);
-            printf("\n\t%sSelect BST variant to display:%s\n", WHITE, RESET);
-            printf("\t  %s1.%s BST-1\n", MAGENTA, RESET);
-            printf("\t  %s2.%s BST-2\n", MAGENTA, RESET);
-            printf("\t  %s3.%s BST-3\n", MAGENTA, RESET);
-            printf("\n\t%s->%s Enter your choice: ", WHITE, RESET);
+            displayMenu("DISPLAY BST ");
+            
+            printf("\t\t\t+-------------------------------------------------------------+\n");
+            printf("\t\t\t|        %s1.%s %sBST-1%s                                           |\n", RED, RESET, WHITE, RESET);
+            printf("\t\t\t|        %s2.%s %sBST-2%s                                           |\n", RED, RESET, WHITE, RESET);
+            printf("\t\t\t|        %s3.%s %sBST-3%s                                           |\n", RED, RESET, WHITE, RESET);
+            printf("\t\t\t+-------------------------------------------------------------+\n\n");
+            printf("\t\t\t\t%s>>>%s Enter your choice: %s", RED, WHITE, RESET);
+            
             scanf(" %d", &Choice_level);
 
             clearScreen();
             if (Choice_level == 1) {
-                displayTitle("BST-1 INORDER TRAVERSAL", CYAN);
-                Display_bst(&Bst1);
+                displayMenu("BST-1 INORDER TRAVERSAL ");
+                Inorder_bst(&Bst1);
             } else if (Choice_level == 2) {
-                displayTitle("BST-2 INORDER TRAVERSAL", CYAN);
-                Display_bst(&Bst2);
+                displayMenu("BST-2 INORDER TRAVERSAL ");
+                Inorder_bst(&Bst2);
             } else if (Choice_level == 3) {
-                displayTitle("BST-3 INORDER TRAVERSAL", CYAN);
-                Display_bst(&Bst3);
+                displayMenu("BST-3 INORDER TRAVERSAL ");
+                Inorder_bst(&Bst3);
             } else {
                 printf(RED "\n\tInvalid choice! Please select 1, 2, or 3.\n" RESET);
             }
@@ -1400,14 +1401,14 @@ int main(int argc, char *argv[])
                 continue;
             }
             clearScreen();
-            displayTitle("SINGLE WORD SEARCH", CYAN);
+            displayMenu("SINGLE WORD SEARCH");
             printf("\n\t%s->%s Enter word to search: ", GREEN, RESET);
             scanf(" %[^\n]", Search_word);
             Single_word_search(&Bst1, &Bst2, &Bst3, &Search_word, &Search_result);
             if (Search_result != NULL) {
-                printf(GREEN "\n\t✓ Word '%s' found in the tree!\n" RESET, Search_word);
+                printf(GREEN "\n\tWord '%s' found in the tree!\n" RESET, Search_word);
             } else {
-                printf(RED "\n\t✗ Word '%s' not found in any tree.\n" RESET, Search_word);
+                printf(RED "\n\tWord '%s' not found in any tree.\n" RESET, Search_word);
             }
             pauseScreen();
         }
@@ -1418,7 +1419,7 @@ int main(int argc, char *argv[])
                 continue;
             }
             clearScreen();
-            displayTitle("RANGE SEARCH [WORD1, WORD2]", CYAN);
+            displayMenu("RANGE SEARCH [WORD1, WORD2] ");
             printf("\n\t%s->%s Enter first word (lower bound): ", GREEN, RESET);
             scanf(" %[^\n]", Word1);
             printf("\t%s->%s Enter second word (upper bound): ", GREEN, RESET);
@@ -1445,41 +1446,9 @@ int main(int argc, char *argv[])
             Range_search(&Bst1, &Bst2, &Bst3, &Word1, &Word2);
             pauseScreen();
         }
-        else if (Choice == 9) {
-            if (!Done) {
-                printf(RED "\n\tPlease treat option 1 first\n" RESET);
-                pauseScreen();
-                continue;
-            }
-            clearScreen();
-            displayTitle("DISPLAY BST", CYAN);
-            printf("\n\t%sSelect BST variant to display:%s\n", WHITE, RESET);
-            printf("\t  %s1.%s BST-1\n", MAGENTA, RESET);
-            printf("\t  %s2.%s BST-2\n", MAGENTA, RESET);
-            printf("\t  %s3.%s BST-3\n", MAGENTA, RESET);
-            printf("\n\t%s->%s Enter your choice: ", WHITE, RESET);
-            scanf(" %d", &Choice_level);
-
-            clearScreen();
-            if (Choice_level == 1) {
-                displayTitle("BST-1 INORDER TRAVERSAL", CYAN);
-                Display_bst(&Bst1);
-            } else if (Choice_level == 2) {
-                displayTitle("BST-2 INORDER TRAVERSAL", CYAN);
-                Display_bst(&Bst2);
-            } else if (Choice_level == 3) {
-                displayTitle("BST-3 INORDER TRAVERSAL", CYAN);
-                Display_bst(&Bst3);
-            } else {
-                printf(RED "\n\tInvalid choice! Please select 1, 2, or 3.\n" RESET);
-            }
-            printf("\n");
-            pauseScreen();
-        }
         else if (Choice == 0) {
             clearScreen();
-            displayTitle("THANK YOU FOR USING THE PROGRAM", MAGENTA);
-            printf(YELLOW "\tThank you for using the program. Goodbye!\n" RESET);
+            displayMenu("THANK YOU FOR USING THE PROGRAM");
         }
         else {
             printf(RED "\n\tInvalid choice! Please select a valid option.\n" RESET);
@@ -1499,98 +1468,4 @@ int main(int argc, char *argv[])
     free(S);
 
     return 0;
-}
-
-/*------------------------------------------------------------------------------------------*/
-int _print_t(Pointer_As tree, int is_left, int offset, int depth, char s[40][255])
-{
-    char b[20];
-    int width = 5;
-    string2 firstChar;
-
-    if (!tree) return 0;
-    
-    // Get the first character for coloring
-    firstChar = (char*) malloc(2 * sizeof(char));
-    firstChar[0] = Node_value_As(tree)[0];
-    firstChar[1] = '\0';
-    
-    // Format the node value
-    sprintf(b, "(%s)", Node_value_As(tree));
-
-    int left  = _print_t(Lc_As(tree), 1, offset, depth + 1, s);
-    int right = _print_t(Rc_As(tree), 0, offset + left + width, depth + 1, s);
-
-#ifdef COMPACT
-    for (int i = 0; i < width; i++)
-        s[depth][offset + left + i] = b[i];
-
-    if (depth && is_left) {
-        for (int i = 0; i < width + right; i++)
-            s[depth - 1][offset + left + width/2 + i] = '-';
-
-        s[depth - 1][offset + left + width/2] = '.';
-    } else if (depth && !is_left) {
-        for (int i = 0; i < left + width; i++)
-            s[depth - 1][offset - width/2 + i] = '-';
-
-        s[depth - 1][offset + left + width/2] = '.';
-    }
-#else
-    for (int i = 0; i < strlen(b) && i < width + 10; i++)
-        s[2 * depth][offset + left + i] = b[i];
-
-    if (depth && is_left) {
-        for (int i = 0; i < width + right; i++)
-            s[2 * depth - 1][offset + left + width/2 + i] = '-';
-
-        s[2 * depth - 1][offset + left + width/2] = '+';
-        s[2 * depth - 1][offset + left + width + right + width/2] = '+';
-    } else if (depth && !is_left) {
-        for (int i = 0; i < left + width; i++)
-            s[2 * depth - 1][offset - width/2 + i] = '-';
-
-        s[2 * depth - 1][offset + left + width/2] = '+';
-        s[2 * depth - 1][offset - width/2 - 1] = '+';
-    }
-#endif
-
-    free(firstChar);
-    return left + width + right;
-}
-
-void print_t(Pointer_As tree)
-{
-    char s[40][255];
-    for (int i = 0; i < 40; i++)
-        sprintf(s[i], "%120s", " ");
-
-    _print_t(tree, 0, 0, 0, s);
-
-    for (int i = 0; i < 40; i++) {
-        if (strlen(s[i]) > 0 && strspn(s[i], " ") != strlen(s[i])) {
-            printf("%s\n", s[i]);
-        }
-    }
-}
-
-/*------------------------------------------------------------------------------------------*/
-/* Function to display a BST in a visual tree structure */
-void Display_bst(Pointer_As *Root) {
-    if (*Root == NULL) {
-        printf("\n\t%s%sEmpty tree!%s\n", RED, BOLD, RESET);
-        return;
-    }
-
-    // Count nodes
-    int nodeCount = 0;
-    Inorder_count(Root, &nodeCount);
-    
-    displayTitle("BST VISUALIZATION", CYAN);
-    printf("\n%s%s%s Legend: %s%sX/Y words%s | %s%s'a' words%s | %s%s>a words%s | %s%sothers%s", 
-           WHITE, BOLD, RESET, MAGENTA, BOLD, RESET, CYAN, BOLD, RESET, 
-           GREEN, BOLD, RESET, YELLOW, BOLD, RESET);
-    printf("\n%s%sTotal nodes: %d%s\n\n", GREEN, BOLD, nodeCount, RESET);
-    
-    print_t(*Root);
 }

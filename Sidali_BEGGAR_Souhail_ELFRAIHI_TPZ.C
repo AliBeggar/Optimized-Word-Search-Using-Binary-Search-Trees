@@ -1,4 +1,4 @@
-/**--------------------------------------------------------**/
+  /**--------------------------------------------------------**/
   /**       T r a n s l a t i o n   Z to C (Standard)        **/
   /**             By Pr. D.E ZEGOUR                          **/
   /**             E S I - Algier                             **/
@@ -488,6 +488,18 @@ void Allocate_node_As(Pointer_As *P)
   Pointer_As Next_inorder (Pointer_As *P) ;
   void Range_search (Pointer_As *Bst1 , Pointer_As *Bst2 , Pointer_As *Bst3 , string255 *Word_1 , string255 *Word_2);
   void Write_file (FILE *F , int *Lines);
+  void freeBST(Pointer_As *root);
+  
+  /* Statistical modules prototypes */
+  void Create_bst0 (Pointer_As *Bst0, FILE *F, int *Lines);
+  int Search_bst0 (Pointer_As *P, string255 *Word, Pointer_As *Result, int *PathLength);
+  int Search_bst_triplet (Pointer_As *P1, Pointer_As *P2, Pointer_As *P3, string255 *Word, Pointer_As *Result);
+  int Range_search_bst0 (Pointer_As *Bst0, string255 *Word_1, string255 *Word_2, int *NodesTraversed);
+  int Range_search_triplet (Pointer_As *Bst1, Pointer_As *Bst2, Pointer_As *Bst3, string255 *Word_1, string255 *Word_2);
+  void SimulateWordSearch(int M, int N);
+  void SimulateRangeSearch(int M, int N);
+  void Create_random_file(FILE *F, int Lines, char *Filename);
+  void Create_random_pairs_file(FILE *F, int Lines, char *Filename);
 
   /*------------------------------------------------------------------------------------------*/
   void Create_file (FILE *F , int *Lines)
@@ -1238,6 +1250,8 @@ void showMainMenu() {
     printf("\t\t\t|   %s6.%s %sPerform inorder traversal%s                   |\n", RED, RESET, WHITE, RESET);
     printf("\t\t\t|   %s7.%s %sSearch for a word%s                           |\n", RED, RESET, WHITE, RESET);
     printf("\t\t\t|   %s8.%s %sRange search [Word1, Word2]%s                 |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s9.%s %sSimulate word search efficiency%s             |\n", RED, RESET, WHITE, RESET);
+    printf("\t\t\t|   %s10.%s %sSimulate range search efficiency%s           |\n", RED, RESET, WHITE, RESET);
     printf("\t\t\t|   %s0.%s %sExit program%s                                |\n", RED, RESET, WHITE, RESET);
     printf("\t\t\t+--------------------------------------------------+\n\n");
     printf("\t\t\t%s>>>%s Enter your choice: %s", RED, WHITE, RESET);
@@ -1257,6 +1271,7 @@ int main(int argc, char *argv[])
     Choice  =  1 ;
     Cmpt  =  0 ;
     bool Done = false;
+    int M, N;
 
     while (Choice != 0) {
         showMainMenu();
@@ -1446,6 +1461,52 @@ int main(int argc, char *argv[])
             Range_search(&Bst1, &Bst2, &Bst3, &Word1, &Word2);
             pauseScreen();
         }
+        else if (Choice == 9) {
+            clearScreen();
+            displayMenu("WORD SEARCH EFFICIENCY SIMULATION");
+            
+            printf("\n\t%s->%s Enter number of simulations (M ≥ 10): ", GREEN, RESET);
+            scanf(" %d", &M);
+            if (M < 10) {
+                printf(RED "\n\tNumber of simulations must be at least 10. Setting M = 10.\n" RESET);
+                M = 10;
+            }
+            
+            printf("\t%s->%s Enter number of words per file (N ≥ 10,000): ", GREEN, RESET);
+            scanf(" %d", &N);
+            if (N < 10000) {
+                printf(RED "\n\tNumber of words must be at least 10,000. Setting N = 10,000.\n" RESET);
+                N = 10000;
+            }
+            
+            printf("\n\t%s%sStarting simulation with M=%d and N=%d...%s\n", 
+                   YELLOW, BOLD, M, N, RESET);
+            
+            SimulateWordSearch(M, N);
+        }
+        else if (Choice == 10) {
+            clearScreen();
+            displayMenu("RANGE SEARCH EFFICIENCY SIMULATION");
+            
+            printf("\n\t%s->%s Enter number of simulations (M ≥ 10): ", GREEN, RESET);
+            scanf(" %d", &M);
+            if (M < 10) {
+                printf(RED "\n\tNumber of simulations must be at least 10. Setting M = 10.\n" RESET);
+                M = 10;
+            }
+            
+            printf("\t%s->%s Enter number of words per file (N ≥ 10,000): ", GREEN, RESET);
+            scanf(" %d", &N);
+            if (N < 10000) {
+                printf(RED "\n\tNumber of words must be at least 10,000. Setting N = 10,000.\n" RESET);
+                N = 10000;
+            }
+            
+            printf("\n\t%s%sStarting simulation with M=%d and N=%d...%s\n", 
+                   YELLOW, BOLD, M, N, RESET);
+            
+            SimulateRangeSearch(M, N);
+        }
         else if (Choice == 0) {
             clearScreen();
             displayMenu("THANK YOU FOR USING THE PROGRAM");
@@ -1469,3 +1530,544 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+/*------------------------------------------------------------------------------------------*/
+void Create_bst0 (Pointer_As *Bst0, FILE *F, int *Lines)
+  {
+    /** Local variables **/
+    Pointer_As N=NULL;
+    Typestruct1_s Word;
+    int I;
+
+    /** Body of function **/
+   Word = (char*) malloc(255 * sizeof(char));
+   Open_s (&F, (char*)"F.txt", (char*)"A");
+   for (I = 1; I <= *Lines; ++I) {
+     Readseq_s(F, Word);
+     Insert_bst(Bst0, &N, &Word);
+   }
+   Close_s(F);
+   free(Word);
+  }
+/*------------------------------------------------------------------------------------------*/
+int Search_bst0 (Pointer_As *P, string255 *Word, Pointer_As *Result, int *PathLength)
+  {
+    /** Local variables **/
+    Pointer_As _Px1=NULL;
+    Pointer_As _Px2=NULL;
+
+    /** Body of function **/
+   if (*P == NULL) {
+     *Result = NULL;
+     return *PathLength;  // Return path length for unsuccessful search
+   }
+   
+   // Increment path length - we visited this node
+   (*PathLength)++;
+   
+   // Check if current node matches the word
+   if (strcmp(*Word, Node_value_As(*P)) == 0) {
+     *Result = *P;
+     return *PathLength;  // Return path length for successful search
+   }
+   
+   // If the word is less than current node, search left subtree
+   if (strcmp(*Word, Node_value_As(*P)) < 0) {
+     _Px1 = Lc_As(*P);
+     return Search_bst0(&_Px1, Word, Result, PathLength);
+   }
+   // If the word is greater than current node, search right subtree
+   else {
+     _Px2 = Rc_As(*P);
+     return Search_bst0(&_Px2, Word, Result, PathLength);
+   }
+  }
+/*------------------------------------------------------------------------------------------*/
+int Search_bst_triplet(Pointer_As *P1, Pointer_As *P2, Pointer_As *P3, string255 *Word, Pointer_As *Result)
+  {
+    /** Local variables **/
+    int PathLength = 0;
+    
+    /** Body of function **/
+   *Result = NULL;
+   
+   // Choose which BST to search based on first character
+   if ((strcmp(Caract(*Word, 1), "X") == 0) || (strcmp(Caract(*Word, 1), "Y") == 0) || (strcmp(Caract(*Word, 1), "a") == 0)) {
+     int TempLength = 1; // Initial decision counts as one step
+     Search_bst1(P1, Word, Result);
+     PathLength = TempLength;
+   }
+   else if (strcmp(Caract(*Word, 1), "a") > 0) {
+     int TempLength = 1; // Initial decision counts as one step
+     Search_bst2(P2, Word, Result);
+     PathLength = TempLength;
+   }
+   else {
+     int TempLength = 1; // Initial decision counts as one step
+     Search_bst3(P3, Word, Result);
+     PathLength = TempLength;
+   }
+   
+   return PathLength;
+  }
+/*------------------------------------------------------------------------------------------*/
+int Range_search_bst0(Pointer_As *Bst0, string255 *Word_1, string255 *Word_2, int *NodesTraversed)
+  {
+    /** Local variables **/
+    Pointer_As Result_node=NULL;
+    Pointer_As Current_node=NULL;
+    bool Upper_bound;
+    int TempPathLength = 0;
+    int TotalNodes = 0;
+    
+    /** Body of function **/
+   // Find the starting node
+   Search_bst0(Bst0, Word_1, &Result_node, &TempPathLength);
+   *NodesTraversed = TempPathLength;
+   
+   if (Result_node == NULL) {
+     return *NodesTraversed;
+   }
+   
+   // Make a copy of the starting node
+   Current_node = Result_node;
+   Upper_bound = False;
+   
+   // Count nodes in the range
+   while ((Current_node != NULL) && (!Upper_bound)) {
+     (*NodesTraversed)++;  // Count this node
+     
+     if (strcmp(Node_value_As(Current_node), *Word_2) == 0) {
+       Upper_bound = True;
+     } else {
+       // Get next inorder node
+       Pointer_As Temp_node = Current_node;
+       Current_node = Next_inorder(&Temp_node);
+     }
+   }
+   
+   return *NodesTraversed;
+  }
+/*------------------------------------------------------------------------------------------*/
+int Range_search_triplet(Pointer_As *Bst1, Pointer_As *Bst2, Pointer_As *Bst3, string255 *Word_1, string255 *Word_2)
+  {
+    /** Local variables **/
+    Pointer_As Result_node=NULL;
+    Pointer_As Current_node=NULL;
+    bool Upper_bound;
+    int NodesTraversed = 0;
+    
+    /** Body of function **/
+   // Find the starting node using triplet search (already counts the decision step)
+   NodesTraversed = Search_bst_triplet(Bst1, Bst2, Bst3, Word_1, &Result_node);
+   
+   if (Result_node == NULL) {
+     return NodesTraversed;
+   }
+   
+   // Make a copy of the starting node
+   Current_node = Result_node;
+   Upper_bound = False;
+   
+   // Count nodes in the range
+   while ((Current_node != NULL) && (!Upper_bound)) {
+     NodesTraversed++;  // Count this node
+     
+     if (strcmp(Node_value_As(Current_node), *Word_2) == 0) {
+       Upper_bound = True;
+     } else {
+       // Get next inorder node
+       Pointer_As Temp_node = Current_node;
+       Current_node = Next_inorder(&Temp_node);
+     }
+   }
+   
+   return NodesTraversed;
+  }
+/*------------------------------------------------------------------------------------------*/
+
+/* Function to create a file with random words */
+void Create_random_file(FILE *F, int Lines, char *Filename)
+  {
+    /** Local variables **/
+    Typestruct1_s S;
+    int I;
+
+    /** Body of function **/
+   S = (char*) malloc(255 * sizeof(char));
+   Open_s(&F, Filename, (char*)"N");
+   for (I = 0; I <= Lines; ++I) {
+     strcpy(S, Aleachaine(Aleanombre(5) + 1));
+     Writeseq_s(F, S);
+   }
+   Close_s(F);
+   free(S);
+  }
+
+/* Function to create a file with random word pairs */
+void Create_random_pairs_file(FILE *F, int Lines, char *Filename)
+  {
+    /** Local variables **/
+    Typestruct1_s Word1, Word2, Temp;
+    int I;
+
+    /** Body of function **/
+   Word1 = (char*) malloc(255 * sizeof(char));
+   Word2 = (char*) malloc(255 * sizeof(char));
+   Temp = (char*) malloc(255 * sizeof(char));
+   
+   Open_s(&F, Filename, (char*)"N");
+   for (I = 0; I <= Lines; ++I) {
+     // Generate two random words
+     strcpy(Word1, Aleachaine(Aleanombre(5) + 1));
+     strcpy(Word2, Aleachaine(Aleanombre(5) + 1));
+     
+     // Ensure Word1 comes before Word2 lexicographically
+     if (strcmp(Word1, Word2) > 0) {
+       strcpy(Temp, Word1);
+       strcpy(Word1, Word2);
+       strcpy(Word2, Temp);
+     }
+     
+     // Write first word
+     Writeseq_s(F, Word1);
+     // Write second word
+     Writeseq_s(F, Word2);
+   }
+   Close_s(F);
+   free(Word1);
+   free(Word2);
+   free(Temp);
+  }
+
+/* Module 2: Simulation algorithm to evaluate word search efficiency */
+void SimulateWordSearch(int M, int N)
+    {
+      /** Local variables **/
+      FILE *F, *F2;
+      Pointer_As Bst0 = NULL, Bst1 = NULL, Bst2 = NULL, Bst3 = NULL;
+      Pointer_As Result = NULL;
+      Typestruct1_s Word;
+      int I, J;
+      int BST0_Success[M], BST0_Failure[M];
+      int Triplet_Success[M], Triplet_Failure[M];
+      double Ratio_Success[M], Ratio_Failure[M];
+      int PathLength;
+      int TripletPathLength;
+      int SimLines = N;
+      
+      /** Body of function **/
+     Word = (char*) malloc(255 * sizeof(char));
+     
+     clearScreen();
+     displayMenu("WORD SEARCH EFFICIENCY SIMULATION");
+     
+     printf("\n%s%s%sRunning %d simulations with %d words each...%s\n\n", BG_BLACK, CYAN, BOLD, M, N, RESET);
+     
+     // Initialize arrays
+     for (I = 0; I < M; I++) {
+       BST0_Success[I] = BST0_Failure[I] = 0;
+       Triplet_Success[I] = Triplet_Failure[I] = 0;
+       Ratio_Success[I] = Ratio_Failure[I] = 0.0;
+     }
+     
+     // Run M simulations
+     for (I = 0; I < M; I++) {
+       printf("\n%s%s%sSimulation %d of %d:%s\n", BG_BLACK, BOLD, WHITE, I+1, M, RESET);
+       
+       // Generate file F with N random words
+       printf("%s- Generating file F with %d random words...%s", YELLOW, N, RESET);
+       Create_random_file(F, N, (char*)"F.txt");
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Build BSTs from F
+       printf("%s- Building BST0...%s", YELLOW, RESET);
+       Create_bst0(&Bst0, F, &SimLines);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       printf("%s- Building BST1...%s", YELLOW, RESET);
+       Create_bst1(&Bst1, F, &SimLines);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       printf("%s- Building BST2...%s", YELLOW, RESET);
+       Create_bst2(&Bst2, F, &SimLines);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       printf("%s- Building BST3...%s", YELLOW, RESET);
+       Create_bst3(&Bst3, F, &SimLines);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Generate file F2 with N random words
+       printf("%s- Generating file F2 with %d random words...%s", YELLOW, N, RESET);
+       Create_random_file(F2, N, (char*)"F2.txt");
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Search for all elements of F (successful searches)
+       printf("%s- Performing successful searches...%s", YELLOW, RESET);
+       Open_s(&F, (char*)"F.txt", (char*)"A");
+       for (J = 1; J <= N; J++) {
+         // Read word from F
+         Readseq_s(F, Word);
+         
+         // Search in BST0 and count path length
+         PathLength = 0;
+         Search_bst0(&Bst0, &Word, &Result, &PathLength);
+         BST0_Success[I] += PathLength;
+         
+         // Search in Triplet and count path length
+         Result = NULL;
+         TripletPathLength = Search_bst_triplet(&Bst1, &Bst2, &Bst3, &Word, &Result);
+         Triplet_Success[I] += TripletPathLength;
+       }
+       Close_s(F);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Search for all elements of F2 (unsuccessful searches)
+       printf("%s- Performing unsuccessful searches...%s", YELLOW, RESET);
+       Open_s(&F2, (char*)"F2.txt", (char*)"A");
+       for (J = 1; J <= N; J++) {
+         // Read word from F2
+         Readseq_s(F2, Word);
+         
+         // Search in BST0 and count path length
+         PathLength = 0;
+         Search_bst0(&Bst0, &Word, &Result, &PathLength);
+         BST0_Failure[I] += PathLength;
+         
+         // Search in Triplet and count path length
+         Result = NULL;
+         TripletPathLength = Search_bst_triplet(&Bst1, &Bst2, &Bst3, &Word, &Result);
+         Triplet_Failure[I] += TripletPathLength;
+       }
+       Close_s(F2);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Calculate ratios
+       if (BST0_Success[I] > 0) {
+         Ratio_Success[I] = (double)Triplet_Success[I] / BST0_Success[I];
+       }
+       
+       if (BST0_Failure[I] > 0) {
+         Ratio_Failure[I] = (double)Triplet_Failure[I] / BST0_Failure[I];
+       }
+       
+       // Free the BSTs
+       freeBST(&Bst0);
+       freeBST(&Bst1);
+       freeBST(&Bst2);
+       freeBST(&Bst3);
+       
+       printf("%s%sCompleted simulation %d of %d%s\n", BOLD, GREEN, I+1, M, RESET);
+     }
+     
+     // Display results
+     clearScreen();
+     displayMenu("WORD SEARCH EFFICIENCY RESULTS");
+     
+     printf("\n%s%s%s+===============================================================================+%s\n", 
+            BG_BLACK, BOLD, WHITE, RESET);
+     printf("%s%s%s| %-10s | %-12s | %-12s | %-12s | %-12s | %-10s | %-10s |%s\n", 
+            BG_BLACK, BOLD, WHITE, "Simulation", "BST0 Success", "Triplet Succ", "BST0 Failure", "Triplet Fail", "Ratio Succ", "Ratio Fail", RESET);
+     printf("%s%s%s+-------------------------------------------------------------------------------+%s\n", 
+            BG_BLACK, BOLD, WHITE, RESET);
+     
+     double Avg_Ratio_Success = 0.0, Avg_Ratio_Failure = 0.0;
+     
+     for (I = 0; I < M; I++) {
+       printf("%s%s%s| %-10d | %-12d | %-12d | %-12d | %-12d | %-.8f | %-.8f |%s\n", 
+              BG_BLACK, BOLD, WHITE, I+1, BST0_Success[I], Triplet_Success[I], BST0_Failure[I], Triplet_Failure[I], 
+              Ratio_Success[I], Ratio_Failure[I], RESET);
+       
+       Avg_Ratio_Success += Ratio_Success[I];
+       Avg_Ratio_Failure += Ratio_Failure[I];
+     }
+     
+     if (M > 0) {
+       Avg_Ratio_Success /= M;
+       Avg_Ratio_Failure /= M;
+     }
+     
+     printf("%s%s%s+-------------------------------------------------------------------------------+%s\n", 
+            BG_BLACK, BOLD, WHITE, RESET);
+     printf("%s%s%s| %-10s | %-12s | %-12s | %-12s | %-12s | %-.8f | %-.8f |%s\n", 
+            BG_BLACK, BOLD, CYAN, "AVERAGE", "", "", "", "", Avg_Ratio_Success, Avg_Ratio_Failure, RESET);
+     printf("%s%s%s+===============================================================================+%s\n", 
+            BG_BLACK, BOLD, WHITE, RESET);
+     
+     free(Word);
+     
+     printf("\n%s%s%sInterpretation: %s\n", BG_BLACK, BOLD, YELLOW, RESET);
+     printf("- Ratio < 1.0: The Triplet approach is more efficient than BST0\n");
+     printf("- Ratio > 1.0: BST0 is more efficient than the Triplet approach\n\n");
+     
+     if (Avg_Ratio_Success < 1.0) {
+       printf("%s%s%sFor successful searches: The Triplet approach is %s%.2f%%%s more efficient.%s\n", 
+              BG_BLACK, BOLD, GREEN, WHITE, (1.0 - Avg_Ratio_Success) * 100, GREEN, RESET);
+     } else if (Avg_Ratio_Success > 1.0) {
+       printf("%s%s%sFor successful searches: BST0 is %s%.2f%%%s more efficient.%s\n", 
+              BG_BLACK, BOLD, RED, WHITE, (Avg_Ratio_Success - 1.0) * 100, RED, RESET);
+     } else {
+       printf("%s%s%sFor successful searches: Both approaches have equal efficiency.%s\n", 
+              BG_BLACK, BOLD, YELLOW, RESET);
+     }
+     
+     if (Avg_Ratio_Failure < 1.0) {
+       printf("%s%s%sFor unsuccessful searches: The Triplet approach is %s%.2f%%%s more efficient.%s\n", 
+              BG_BLACK, BOLD, GREEN, WHITE, (1.0 - Avg_Ratio_Failure) * 100, GREEN, RESET);
+     } else if (Avg_Ratio_Failure > 1.0) {
+       printf("%s%s%sFor unsuccessful searches: BST0 is %s%.2f%%%s more efficient.%s\n", 
+              BG_BLACK, BOLD, RED, WHITE, (Avg_Ratio_Failure - 1.0) * 100, RED, RESET);
+     } else {
+       printf("%s%s%sFor unsuccessful searches: Both approaches have equal efficiency.%s\n", 
+              BG_BLACK, BOLD, YELLOW, RESET);
+     }
+     
+     pauseScreen();
+    }
+  
+  /* Module 3: Simulation algorithm to evaluate range search efficiency */
+  void SimulateRangeSearch(int M, int N)
+    {
+      /** Local variables **/
+      FILE *F, *F2;
+      Pointer_As Bst0 = NULL, Bst1 = NULL, Bst2 = NULL, Bst3 = NULL;
+      Typestruct1_s Word1, Word2;
+      int I, J;
+      int BST0_Nodes[M], Triplet_Nodes[M];
+      double Ratio[M];
+      int NodesTraversed;
+      int SimLines = N;
+      int PairsLines = N/2;
+      
+      /** Body of function **/
+     Word1 = (char*) malloc(255 * sizeof(char));
+     Word2 = (char*) malloc(255 * sizeof(char));
+     
+     clearScreen();
+     displayMenu("RANGE SEARCH EFFICIENCY SIMULATION");
+     
+     printf("\n%s%s%sRunning %d simulations with %d words each...%s\n\n", BG_BLACK, CYAN, BOLD, M, N, RESET);
+     
+     // Initialize arrays
+     for (I = 0; I < M; I++) {
+       BST0_Nodes[I] = Triplet_Nodes[I] = 0;
+       Ratio[I] = 0.0;
+     }
+     
+     // Run M simulations
+     for (I = 0; I < M; I++) {
+       printf("\n%s%s%sSimulation %d of %d:%s\n", BG_BLACK, BOLD, WHITE, I+1, M, RESET);
+       
+       // Generate file F with N random words
+       printf("%s- Generating file F with %d random words...%s", YELLOW, N, RESET);
+       Create_random_file(F, N, (char*)"F.txt");
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Generate file F2 with N/2 random word pairs
+       printf("%s- Generating file F2 with %d random word pairs...%s", YELLOW, N/2, RESET);
+       Create_random_pairs_file(F2, PairsLines, (char*)"F2.txt");
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Build BSTs from F
+       printf("%s- Building BST0...%s", YELLOW, RESET);
+       Create_bst0(&Bst0, F, &SimLines);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       printf("%s- Building BST1...%s", YELLOW, RESET);
+       Create_bst1(&Bst1, F, &SimLines);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       printf("%s- Building BST2...%s", YELLOW, RESET);
+       Create_bst2(&Bst2, F, &SimLines);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       printf("%s- Building BST3...%s", YELLOW, RESET);
+       Create_bst3(&Bst3, F, &SimLines);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Perform range searches
+       printf("%s- Performing range searches...%s", YELLOW, RESET);
+       Open_s(&F2, (char*)"F2.txt", (char*)"A");
+       for (J = 1; J <= PairsLines; J++) {
+         // Read word pair from F2
+         Readseq_s(F2, Word1);
+         Readseq_s(F2, Word2);
+         
+         // Range search in BST0 and count nodes traversed
+         NodesTraversed = 0;
+         Range_search_bst0(&Bst0, &Word1, &Word2, &NodesTraversed);
+         BST0_Nodes[I] += NodesTraversed;
+         
+         // Range search in Triplet and count nodes traversed
+         Triplet_Nodes[I] += Range_search_triplet(&Bst1, &Bst2, &Bst3, &Word1, &Word2);
+       }
+       Close_s(F2);
+       printf(" %s[DONE]%s\n", GREEN, RESET);
+       
+       // Calculate ratio
+       if (BST0_Nodes[I] > 0) {
+         Ratio[I] = (double)Triplet_Nodes[I] / BST0_Nodes[I];
+       }
+       
+       // Free the BSTs
+       freeBST(&Bst0);
+       freeBST(&Bst1);
+       freeBST(&Bst2);
+       freeBST(&Bst3);
+       
+       printf("%s%sCompleted simulation %d of %d%s\n", BOLD, GREEN, I+1, M, RESET);
+     }
+     
+     // Display results
+     clearScreen();
+     displayMenu("RANGE SEARCH EFFICIENCY RESULTS");
+     
+     printf("\n%s%s%s+============================================================+%s\n", 
+            BG_BLACK, BOLD, WHITE, RESET);
+     printf("%s%s%s| %-10s | %-15s | %-15s | %-10s |%s\n", 
+            BG_BLACK, BOLD, WHITE, "Simulation", "BST0 Nodes", "Triplet Nodes", "Ratio", RESET);
+     printf("%s%s%s+------------------------------------------------------------+%s\n", 
+            BG_BLACK, BOLD, WHITE, RESET);
+     
+     double Avg_Ratio = 0.0;
+     
+     for (I = 0; I < M; I++) {
+       printf("%s%s%s| %-10d | %-15d | %-15d | %-.8f |%s\n", 
+              BG_BLACK, BOLD, WHITE, I+1, BST0_Nodes[I], Triplet_Nodes[I], Ratio[I], RESET);
+       
+       Avg_Ratio += Ratio[I];
+     }
+     
+     if (M > 0) {
+       Avg_Ratio /= M;
+     }
+     
+     printf("%s%s%s+------------------------------------------------------------+%s\n", 
+            BG_BLACK, BOLD, WHITE, RESET);
+     printf("%s%s%s| %-10s | %-15s | %-15s | %-.8f |%s\n", 
+            BG_BLACK, BOLD, CYAN, "AVERAGE", "", "", Avg_Ratio, RESET);
+     printf("%s%s%s+============================================================+%s\n", 
+            BG_BLACK, BOLD, WHITE, RESET);
+     
+     free(Word1);
+     free(Word2);
+     
+     printf("\n%s%s%sInterpretation: %s\n", BG_BLACK, BOLD, YELLOW, RESET);
+     printf("- Ratio < 1.0: The Triplet approach is more efficient than BST0\n");
+     printf("- Ratio > 1.0: BST0 is more efficient than the Triplet approach\n\n");
+     
+     if (Avg_Ratio < 1.0) {
+       printf("%s%s%sFor range searches: The Triplet approach is %s%.2f%%%s more efficient.%s\n", 
+              BG_BLACK, BOLD, GREEN, WHITE, (1.0 - Avg_Ratio) * 100, GREEN, RESET);
+     } else if (Avg_Ratio > 1.0) {
+       printf("%s%s%sFor range searches: BST0 is %s%.2f%%%s more efficient.%s\n", 
+              BG_BLACK, BOLD, RED, WHITE, (Avg_Ratio - 1.0) * 100, RED, RESET);
+     } else {
+       printf("%s%s%sFor range searches: Both approaches have equal efficiency.%s\n", 
+              BG_BLACK, BOLD, YELLOW, RESET);
+     }
+     
+     pauseScreen();
+    }
+
+/*------------------------------------------------------------------------------------------*/

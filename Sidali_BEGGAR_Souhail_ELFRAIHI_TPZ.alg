@@ -42,9 +42,7 @@
            WRITE ( '3. Count words starting with X, Y, and Z' ) ;
            WRITE ( '4. Compute and display tree depth for all variants' ) ;
            WRITE ( '5. Display nodes that start with X, Y, Z per level' ) ;
-           WRITE ( '' ) ;
-           WRITE ( '== Word Search Operations ==' ) ;
-           WRITE ( '6. Display BST' ) ;
+           WRITE ( '6. Inorder traversal display' ) ;
            WRITE ( '7. Single Word Search' ) ;
            WRITE ( '8. Range Search [Word1, Word2]' ) ;
            WRITE ( '' ) ;

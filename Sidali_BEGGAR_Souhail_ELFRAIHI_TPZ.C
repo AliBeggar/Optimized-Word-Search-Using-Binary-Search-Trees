@@ -826,7 +826,7 @@ void Allocate_node_As(Pointer_As *P)
            }
          else
            {
-           if( (strcmp( First_char, "a") > 0  )) {
+           if( (strcmp( First_char, "a") > 0  ) || (strcmp( First_char, "Z") == 0 ) ) {
              while( ( Parent_As ( N ) != NULL )) {
                if( ( N == Rc_As ( Parent_As ( N ) ) )) {
                  _Px3 =  Parent_As ( N ) ;
@@ -1465,14 +1465,14 @@ int main(int argc, char *argv[])
             clearScreen();
             displayMenu("WORD SEARCH EFFICIENCY SIMULATION");
             
-            printf("\n\t%s->%s Enter number of simulations (M ≥ 10): ", GREEN, RESET);
+            printf("\n\t%s->%s Enter number of simulations (M >= 10): ", GREEN, RESET);
             scanf(" %d", &M);
             if (M < 10) {
                 printf(RED "\n\tNumber of simulations must be at least 10. Setting M = 10.\n" RESET);
                 M = 10;
             }
             
-            printf("\t%s->%s Enter number of words per file (N ≥ 10,000): ", GREEN, RESET);
+            printf("\t%s->%s Enter number of words per file (N >= 10,000): ", GREEN, RESET);
             scanf(" %d", &N);
             if (N < 10000) {
                 printf(RED "\n\tNumber of words must be at least 10,000. Setting N = 10,000.\n" RESET);
@@ -1488,14 +1488,14 @@ int main(int argc, char *argv[])
             clearScreen();
             displayMenu("RANGE SEARCH EFFICIENCY SIMULATION");
             
-            printf("\n\t%s->%s Enter number of simulations (M ≥ 10): ", GREEN, RESET);
+            printf("\n\t%s->%s Enter number of simulations (M >= 10): ", GREEN, RESET);
             scanf(" %d", &M);
             if (M < 10) {
                 printf(RED "\n\tNumber of simulations must be at least 10. Setting M = 10.\n" RESET);
                 M = 10;
             }
             
-            printf("\t%s->%s Enter number of words per file (N ≥ 10,000): ", GREEN, RESET);
+            printf("\t%s->%s Enter number of words per file (N >= 10,000): ", GREEN, RESET);
             scanf(" %d", &N);
             if (N < 10000) {
                 printf(RED "\n\tNumber of words must be at least 10,000. Setting N = 10,000.\n" RESET);
@@ -1541,13 +1541,18 @@ void Create_bst0 (Pointer_As *Bst0, FILE *F, int *Lines)
 
     /** Body of function **/
    Word = (char*) malloc(255 * sizeof(char));
+   if (Word == NULL) {
+     printf("Memory allocation failed!\n");
+     return;
+   }
+   
    Open_s (&F, (char*)"F.txt", (char*)"A");
    for (I = 1; I <= *Lines; ++I) {
      Readseq_s(F, Word);
      Insert_bst(Bst0, &N, &Word);
    }
    Close_s(F);
-   free(Word);
+   free(Word); // Free allocated memory
   }
 /*------------------------------------------------------------------------------------------*/
 int Search_bst0 (Pointer_As *P, string255 *Word, Pointer_As *Result, int *PathLength)
@@ -1737,7 +1742,7 @@ int Range_search_triplet(Pointer_As *Bst1, Pointer_As *Bst2, Pointer_As *Bst3, s
    // For BST0, we just traverse Next_inorder for each node
    // For Triplet approach, we need to verify which tree contains the next node
    // and potentially do some additional comparison
-   NodesTraversed += rangeNodesCount * 1.2;
+   NodesTraversed += rangeNodesCount;
    
    return NodesTraversed;
   }
@@ -1927,11 +1932,11 @@ void SimulateWordSearch(int M, int N)
      clearScreen();
      displayMenu("WORD SEARCH EFFICIENCY RESULTS");
      
-     printf("\n%s%s%s+===============================================================================+%s\n", 
+     printf("\n%s%s%s+==================================================================================================+%s\n", 
             BG_BLACK, BOLD, WHITE, RESET);
      printf("%s%s%s| %-10s | %-12s | %-12s | %-12s | %-12s | %-10s | %-10s |%s\n", 
             BG_BLACK, BOLD, WHITE, "Simulation", "BST0 Success", "Triplet Succ", "BST0 Failure", "Triplet Fail", "Ratio Succ", "Ratio Fail", RESET);
-     printf("%s%s%s+-------------------------------------------------------------------------------+%s\n", 
+     printf("%s%s%s+--------------------------------------------------------------------------------------------------+%s\n", 
             BG_BLACK, BOLD, WHITE, RESET);
      
      double Avg_Ratio_Success = 0.0, Avg_Ratio_Failure = 0.0;
@@ -1950,11 +1955,11 @@ void SimulateWordSearch(int M, int N)
        Avg_Ratio_Failure /= M;
      }
      
-     printf("%s%s%s+-------------------------------------------------------------------------------+%s\n", 
+     printf("%s%s%s+--------------------------------------------------------------------------------------------------+%s\n", 
             BG_BLACK, BOLD, WHITE, RESET);
      printf("%s%s%s| %-10s | %-12s | %-12s | %-12s | %-12s | %-.8f | %-.8f |%s\n", 
             BG_BLACK, BOLD, CYAN, "AVERAGE", "", "", "", "", Avg_Ratio_Success, Avg_Ratio_Failure, RESET);
-     printf("%s%s%s+===============================================================================+%s\n", 
+     printf("%s%s%s+==================================================================================================+%s\n", 
             BG_BLACK, BOLD, WHITE, RESET);
      
      free(Word);
@@ -2097,11 +2102,11 @@ void SimulateWordSearch(int M, int N)
      clearScreen();
      displayMenu("RANGE SEARCH EFFICIENCY RESULTS");
      
-     printf("\n%s%s%s+============================================================+%s\n", 
+     printf("\n%s%s%s+=============================================================+%s\n", 
             BG_BLACK, BOLD, WHITE, RESET);
      printf("%s%s%s| %-10s | %-15s | %-15s | %-10s |%s\n", 
             BG_BLACK, BOLD, WHITE, "Simulation", "BST0 Nodes", "Triplet Nodes", "Ratio", RESET);
-     printf("%s%s%s+------------------------------------------------------------+%s\n", 
+     printf("%s%s%s+-------------------------------------------------------------+%s\n", 
             BG_BLACK, BOLD, WHITE, RESET);
      
      double Avg_Ratio = 0.0;
@@ -2117,11 +2122,11 @@ void SimulateWordSearch(int M, int N)
        Avg_Ratio /= M;
      }
      
-     printf("%s%s%s+------------------------------------------------------------+%s\n", 
+     printf("%s%s%s+-------------------------------------------------------------+%s\n", 
             BG_BLACK, BOLD, WHITE, RESET);
      printf("%s%s%s| %-10s | %-15s | %-15s | %-.8f |%s\n", 
             BG_BLACK, BOLD, CYAN, "AVERAGE", "", "", Avg_Ratio, RESET);
-     printf("%s%s%s+============================================================+%s\n", 
+     printf("%s%s%s+=============================================================+%s\n", 
             BG_BLACK, BOLD, WHITE, RESET);
      
      free(Word1);

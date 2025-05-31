@@ -504,11 +504,9 @@ void Allocate_node_As(Pointer_As *P)
   /*------------------------------------------------------------------------------------------*/
   void Create_file (FILE *F , int *Lines)
     {
-      /** Local variables **/
       Typestruct1_s S ;
       int I;
 
-      /** Body of function **/
      S = (char*) malloc(255 * sizeof(char));
      Open_s (&F , (char*)"F.txt" , (char*)"N" ) ;
      for( I  =  0 ;I <=  *Lines ; ++I){
@@ -523,7 +521,6 @@ void Allocate_node_As(Pointer_As *P)
   void Create_node (Pointer_As *P , string255 *Word)
     {
 
-      /** Body of function **/
      Allocate_node_As (& *P ) ;
      Ass_node_val_As ( *P , *Word ) ;
      Ass_parent_As ( *P , NULL ) ;
@@ -1534,12 +1531,10 @@ int main(int argc, char *argv[])
 /*------------------------------------------------------------------------------------------*/
 void Create_bst0 (Pointer_As *Bst0, FILE *F, int *Lines)
   {
-    /** Local variables **/
     Pointer_As N=NULL;
     Typestruct1_s Word;
     int I;
 
-    /** Body of function **/
    Word = (char*) malloc(255 * sizeof(char));
    if (Word == NULL) {
      printf("Memory allocation failed!\n");
@@ -1554,28 +1549,23 @@ void Create_bst0 (Pointer_As *Bst0, FILE *F, int *Lines)
    Close_s(F);
    free(Word); // Free allocated memory
   }
-/*------------------------------------------------------------------------------------------*/
+
 int Search_bst0 (Pointer_As *P, string255 *Word, Pointer_As *Result, int *PathLength)
   {
-    /** Local variables **/
     Pointer_As Temp = *P;
 
-    /** Body of function **/
    *Result = NULL;
    *PathLength = 0;
    
-   // Iterative search with path length counting
+   // Track path length as we search
    while (Temp != NULL) {
-     // Check if current node matches the word
      if (strcmp(*Word, Node_value_As(Temp)) == 0) {
        *Result = Temp;
        break;
      }
      
-     // Count this LC or RC operation
      (*PathLength)++;
      
-     // Navigate to next node
      if (strcmp(*Word, Node_value_As(Temp)) < 0) {
        Temp = Lc_As(Temp);
      } else {
@@ -1585,30 +1575,25 @@ int Search_bst0 (Pointer_As *P, string255 *Word, Pointer_As *Result, int *PathLe
    
    return *PathLength;
   }
-/*------------------------------------------------------------------------------------------*/
+
 int Search_bst_triplet(Pointer_As *P1, Pointer_As *P2, Pointer_As *P3, string255 *Word, Pointer_As *Result)
   {
-    /** Local variables **/
     int PathLength = 0;
     
-    /** Body of function **/
    *Result = NULL;
    
-   // Choose which BST to search based on first character
+   // Pick the right tree based on first letter
    if ((strcmp(Caract(*Word, 1), "X") == 0) || (strcmp(Caract(*Word, 1), "Y") == 0) || (strcmp(Caract(*Word, 1), "a") == 0)) {
-     // Search in BST1
+     // BST1 for X, Y, a
      Pointer_As Temp = *P1;
      while (Temp != NULL) {
-       // Check if current node matches the word
        if (strcmp(*Word, Node_value_As(Temp)) == 0) {
          *Result = Temp;
          break;
        }
        
-       // Count this LC or RC operation
        PathLength++;
        
-       // Navigate to next node
        if (strcmp(*Word, Node_value_As(Temp)) < 0) {
          Temp = Lc_As(Temp);
        } else {
@@ -1617,19 +1602,16 @@ int Search_bst_triplet(Pointer_As *P1, Pointer_As *P2, Pointer_As *P3, string255
      }
    }
    else if (strcmp(Caract(*Word, 1), "a") > 0) {
-     // Search in BST2
+     // BST2 for letters after 'a'
      Pointer_As Temp = *P2;
      while (Temp != NULL) {
-       // Check if current node matches the word
        if (strcmp(*Word, Node_value_As(Temp)) == 0) {
          *Result = Temp;
          break;
        }
        
-       // Count this LC or RC operation
        PathLength++;
        
-       // Navigate to next node
        if (strcmp(*Word, Node_value_As(Temp)) < 0) {
          Temp = Lc_As(Temp);
        } else {
@@ -1638,19 +1620,16 @@ int Search_bst_triplet(Pointer_As *P1, Pointer_As *P2, Pointer_As *P3, string255
      }
    }
    else {
-     // Search in BST3
+     // BST3 for everything else
      Pointer_As Temp = *P3;
      while (Temp != NULL) {
-       // Check if current node matches the word
        if (strcmp(*Word, Node_value_As(Temp)) == 0) {
          *Result = Temp;
          break;
        }
        
-       // Count this LC or RC operation
        PathLength++;
        
-       // Navigate to next node
        if (strcmp(*Word, Node_value_As(Temp)) < 0) {
          Temp = Lc_As(Temp);
        } else {
@@ -1661,21 +1640,18 @@ int Search_bst_triplet(Pointer_As *P1, Pointer_As *P2, Pointer_As *P3, string255
    
    return PathLength;
   }
-/*------------------------------------------------------------------------------------------*/
+
 int Range_search_bst0(Pointer_As *Bst0, string255 *Word_1, string255 *Word_2, int *NodesTraversed)
   {
-    /** Local variables **/
     Pointer_As Result_node=NULL;
     Pointer_As Current_node=NULL;
     bool Upper_bound;
     int SearchPathLength = 0;
     int RangeOpsCount = 0;
     
-    /** Body of function **/
-   // Initialize node traversal counter
    *NodesTraversed = 0;
    
-   // Find the starting node - count LC and RC operations
+   // First find the lower bound
    Search_bst0(Bst0, Word_1, &Result_node, &SearchPathLength);
    *NodesTraversed = SearchPathLength;
    
@@ -1683,80 +1659,64 @@ int Range_search_bst0(Pointer_As *Bst0, string255 *Word_1, string255 *Word_2, in
      return *NodesTraversed;
    }
    
-   // Make a copy of the starting node
    Current_node = Result_node;
    Upper_bound = False;
    
-   // Count operations in the range traversal
+   // Count traversal operations in the range
    while ((Current_node != NULL) && (!Upper_bound)) {
-     // Check if we've reached the upper bound
      if (strcmp(Node_value_As(Current_node), *Word_2) == 0) {
        Upper_bound = True;
      } else {
-       // Count the operation to get to the next node
        RangeOpsCount++;
        
-       // Get next inorder node
        Pointer_As Temp_node = Current_node;
        Current_node = Next_inorder(&Temp_node);
      }
    }
    
-   // Add the range traversal operations to total
    *NodesTraversed += RangeOpsCount;
    
    return *NodesTraversed;
   }
-/*------------------------------------------------------------------------------------------*/
+
 int Range_search_triplet(Pointer_As *Bst1, Pointer_As *Bst2, Pointer_As *Bst3, string255 *Word_1, string255 *Word_2)
   {
-    /** Local variables **/
     Pointer_As Result_node=NULL;
     Pointer_As Current_node=NULL;
     bool Upper_bound;
     int SearchPathLength = 0;
     int RangeOpsCount = 0;
     
-    /** Body of function **/
-   // Find the starting node using triplet search - count LC and RC operations
+   // Find starting point - using the triplet approach
    SearchPathLength = Search_bst_triplet(Bst1, Bst2, Bst3, Word_1, &Result_node);
    
    if (Result_node == NULL) {
      return SearchPathLength;
    }
    
-   // Make a copy of the starting node
    Current_node = Result_node;
    Upper_bound = False;
    
-   // Count operations in the range traversal
+   // Now traverse to upper bound
    while ((Current_node != NULL) && (!Upper_bound)) {
-     // Check if we've reached the upper bound
      if (strcmp(Node_value_As(Current_node), *Word_2) == 0) {
        Upper_bound = True;
      } else {
-       // Count the operation to get to the next node
        RangeOpsCount++;
        
-       // Get next inorder node
        Pointer_As Temp_node = Current_node;
        Current_node = Next_inorder(&Temp_node);
      }
    }
    
-   // Return total operations: search path + range traversal
    return SearchPathLength + RangeOpsCount;
   }
-/*------------------------------------------------------------------------------------------*/
 
-/* Function to create a file with random words */
 void Create_random_file(FILE *F, int Lines, char *Filename)
   {
-    /** Local variables **/
     Typestruct1_s S;
     int I;
 
-    /** Body of function **/
    S = (char*) malloc(255 * sizeof(char));
    Open_s(&F, Filename, (char*)"N");
    for (I = 0; I <= Lines; ++I) {
@@ -1767,34 +1727,30 @@ void Create_random_file(FILE *F, int Lines, char *Filename)
    free(S);
   }
 
-/* Function to create a file with random word pairs */
+
 void Create_random_pairs_file(FILE *F, int Lines, char *Filename)
   {
-    /** Local variables **/
     Typestruct1_s Word1, Word2, Temp;
     int I;
 
-    /** Body of function **/
    Word1 = (char*) malloc(255 * sizeof(char));
    Word2 = (char*) malloc(255 * sizeof(char));
    Temp = (char*) malloc(255 * sizeof(char));
    
    Open_s(&F, Filename, (char*)"N");
    for (I = 0; I <= Lines; ++I) {
-     // Generate two random words
+     // Generate pair of words for range search
      strcpy(Word1, Aleachaine(Aleanombre(5) + 1));
      strcpy(Word2, Aleachaine(Aleanombre(5) + 1));
      
-     // Ensure Word1 comes before Word2 lexicographically
+     // Make sure first word comes before second one
      if (strcmp(Word1, Word2) > 0) {
        strcpy(Temp, Word1);
        strcpy(Word1, Word2);
        strcpy(Word2, Temp);
      }
      
-     // Write first word
      Writeseq_s(F, Word1);
-     // Write second word
      Writeseq_s(F, Word2);
    }
    Close_s(F);
@@ -1806,7 +1762,6 @@ void Create_random_pairs_file(FILE *F, int Lines, char *Filename)
 /* Module 2: Simulation algorithm to evaluate word search efficiency */
 void SimulateWordSearch(int M, int N)
     {
-      /** Local variables **/
       FILE *F, *F2;
       Pointer_As Bst0 = NULL, Bst1 = NULL, Bst2 = NULL, Bst3 = NULL;
       Pointer_As Result = NULL;
@@ -1819,7 +1774,6 @@ void SimulateWordSearch(int M, int N)
       int TripletPathLength;
       int SimLines = N;
       
-      /** Body of function **/
      Word = (char*) malloc(255 * sizeof(char));
      if (Word == NULL) {
        printf("%s%sMemory allocation failed!%s\n", RED, BOLD, RESET);
@@ -1831,23 +1785,23 @@ void SimulateWordSearch(int M, int N)
      
      printf("\n%s%s%sRunning %d simulations with %d words each...%s\n\n", BG_BLACK, CYAN, BOLD, M, N, RESET);
      
-     // Initialize arrays
+     // Zero out the arrays before we start
      for (I = 0; I < M; I++) {
        BST0_Success[I] = BST0_Failure[I] = 0;
        Triplet_Success[I] = Triplet_Failure[I] = 0;
        Ratio_Success[I] = Ratio_Failure[I] = 0.0;
      }
      
-     // Run M simulations
+     // Main simulation loop - each iteration is a complete test
      for (I = 0; I < M; I++) {
        printf("\n%s%s%sSimulation %d of %d:%s\n", BG_BLACK, BOLD, WHITE, I+1, M, RESET);
        
-       // Generate file F with N random words
+       // Create test data file
        printf("%s- Generating file F with %d random words...%s", YELLOW, N, RESET);
        Create_random_file(F, N, (char*)"F.txt");
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Build BSTs from F
+       // Set up the trees we're testing
        printf("%s- Building BST0...%s", YELLOW, RESET);
        Create_bst0(&Bst0, F, &SimLines);
        printf(" %s[DONE]%s\n", GREEN, RESET);
@@ -1864,25 +1818,24 @@ void SimulateWordSearch(int M, int N)
        Create_bst3(&Bst3, F, &SimLines);
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Generate file F2 with N random words
+       // Create file for words not in the tree
        printf("%s- Generating file F2 with %d random words...%s", YELLOW, N, RESET);
        Create_random_file(F2, N, (char*)"F2.txt");
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Search for all elements of F (successful searches)
+       // Test successful searches (words that are in the tree)
        printf("%s- Performing successful searches...%s", YELLOW, RESET);
        Open_s(&F, (char*)"F.txt", (char*)"A");
        for (J = 1; J <= N; J++) {
-         // Read word from F
          Readseq_s(F, Word);
          
-         // Search in BST0 and count path length
+         // Test standard BST
          PathLength = 0;
          Result = NULL;
          Search_bst0(&Bst0, &Word, &Result, &PathLength);
          BST0_Success[I] += PathLength;
          
-         // Search in Triplet and count path length
+         // Test triplet BST approach
          Result = NULL;
          TripletPathLength = Search_bst_triplet(&Bst1, &Bst2, &Bst3, &Word, &Result);
          Triplet_Success[I] += TripletPathLength;
@@ -1890,20 +1843,19 @@ void SimulateWordSearch(int M, int N)
        Close_s(F);
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Search for all elements of F2 (unsuccessful searches)
+       // Test unsuccessful searches (words not in the tree)
        printf("%s- Performing unsuccessful searches...%s", YELLOW, RESET);
        Open_s(&F2, (char*)"F2.txt", (char*)"A");
        for (J = 1; J <= N; J++) {
-         // Read word from F2
          Readseq_s(F2, Word);
          
-         // Search in BST0 and count path length
+         // Test standard BST
          PathLength = 0;
          Result = NULL;
          Search_bst0(&Bst0, &Word, &Result, &PathLength);
          BST0_Failure[I] += PathLength;
          
-         // Search in Triplet and count path length
+         // Test triplet BST approach
          Result = NULL;
          TripletPathLength = Search_bst_triplet(&Bst1, &Bst2, &Bst3, &Word, &Result);
          Triplet_Failure[I] += TripletPathLength;
@@ -1911,7 +1863,7 @@ void SimulateWordSearch(int M, int N)
        Close_s(F2);
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Calculate ratios (Triplet/BST0) - lower ratio means Triplet is more efficient
+       // Calculate efficiency ratios
        if (BST0_Success[I] > 0) {
          Ratio_Success[I] = (double)Triplet_Success[I] / BST0_Success[I];
        }
@@ -1920,7 +1872,7 @@ void SimulateWordSearch(int M, int N)
          Ratio_Failure[I] = (double)Triplet_Failure[I] / BST0_Failure[I];
        }
        
-       // Free the BSTs
+       // Clean up trees before next iteration
        freeBST(&Bst0);
        freeBST(&Bst1);
        freeBST(&Bst2);
@@ -1929,7 +1881,7 @@ void SimulateWordSearch(int M, int N)
        printf("%s%sCompleted simulation %d of %d%s\n", BOLD, GREEN, I+1, M, RESET);
      }
      
-     // Display results
+     // Show the results table
      clearScreen();
      displayMenu("WORD SEARCH EFFICIENCY RESULTS");
      
@@ -1965,6 +1917,7 @@ void SimulateWordSearch(int M, int N)
      
      free(Word);
      
+     // Explain what the results mean
      printf("\n%s%s%sInterpretation: %s\n", BG_BLACK, BOLD, YELLOW, RESET);
      printf("- Ratio < 1.0: The Triplet approach is more efficient than BST0\n");
      printf("- Ratio > 1.0: BST0 is more efficient than the Triplet approach\n\n");
@@ -1992,12 +1945,11 @@ void SimulateWordSearch(int M, int N)
      }
      
      pauseScreen();
-    }
+}
   
   /* Module 3: Simulation algorithm to evaluate range search efficiency */
   void SimulateRangeSearch(int M, int N)
     {
-      /** Local variables **/
       FILE *F, *F2;
       Pointer_As Bst0 = NULL, Bst1 = NULL, Bst2 = NULL, Bst3 = NULL;
       Typestruct1_s Word1, Word2;
@@ -2008,7 +1960,6 @@ void SimulateWordSearch(int M, int N)
       int SimLines = N;
       int PairsLines = N/2;
       
-      /** Body of function **/
      Word1 = (char*) malloc(255 * sizeof(char));
      Word2 = (char*) malloc(255 * sizeof(char));
      
@@ -2024,27 +1975,27 @@ void SimulateWordSearch(int M, int N)
      
      printf("\n%s%s%sRunning %d simulations with %d words each...%s\n\n", BG_BLACK, CYAN, BOLD, M, N, RESET);
      
-     // Initialize arrays
+     // Reset counters
      for (I = 0; I < M; I++) {
        BST0_Nodes[I] = Triplet_Nodes[I] = 0;
        Ratio[I] = 0.0;
      }
      
-     // Run M simulations
+     // Each simulation uses different random data
      for (I = 0; I < M; I++) {
        printf("\n%s%s%sSimulation %d of %d:%s\n", BG_BLACK, BOLD, WHITE, I+1, M, RESET);
        
-       // Generate file F with N random words
+       // Create dictionary file
        printf("%s- Generating file F with %d random words...%s", YELLOW, N, RESET);
        Create_random_file(F, N, (char*)"F.txt");
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Generate file F2 with N/2 random word pairs
+       // Create range query test file - half as many pairs as words
        printf("%s- Generating file F2 with %d random word pairs...%s", YELLOW, PairsLines, RESET);
        Create_random_pairs_file(F2, PairsLines, (char*)"F2.txt");
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Build BSTs from F
+       // Build both types of trees we're comparing
        printf("%s- Building BST0...%s", YELLOW, RESET);
        Create_bst0(&Bst0, F, &SimLines);
        printf(" %s[DONE]%s\n", GREEN, RESET);
@@ -2061,36 +2012,36 @@ void SimulateWordSearch(int M, int N)
        Create_bst3(&Bst3, F, &SimLines);
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Perform range searches
+       // Now run range queries on both approaches
        printf("%s- Performing range searches...%s", YELLOW, RESET);
        Open_s(&F2, (char*)"F2.txt", (char*)"A");
        BST0_Nodes[I] = 0;
        Triplet_Nodes[I] = 0;
        
        for (J = 1; J <= PairsLines; J++) {
-         // Read word pair from F2
+         // Get a pair of words defining our range
          Readseq_s(F2, Word1);
          Readseq_s(F2, Word2);
          
-         // Range search in BST0 and count nodes traversed
+         // Test standard BST
          NodesTraversed = 0;
          Range_search_bst0(&Bst0, &Word1, &Word2, &NodesTraversed);
          BST0_Nodes[I] += NodesTraversed;
          
-         // Range search in Triplet and count nodes traversed
+         // Test triplet BST structure
          Triplet_Nodes[I] += Range_search_triplet(&Bst1, &Bst2, &Bst3, &Word1, &Word2);
        }
        Close_s(F2);
        printf(" %s[DONE]%s\n", GREEN, RESET);
        
-       // Calculate ratio (Triplet/BST0) - lower ratio means Triplet is more efficient
+       // Ratio < 1 means triplet is better
        if (BST0_Nodes[I] > 0) {
          Ratio[I] = (double)Triplet_Nodes[I] / BST0_Nodes[I];
        } else {
-         Ratio[I] = 1.0; // Equal efficiency if no nodes traversed
+         Ratio[I] = 1.0; // Equal if no nodes traversed
        }
        
-       // Free the BSTs
+       // Free memory before next round
        freeBST(&Bst0);
        freeBST(&Bst1);
        freeBST(&Bst2);
@@ -2099,7 +2050,7 @@ void SimulateWordSearch(int M, int N)
        printf("%s%sCompleted simulation %d of %d%s\n", BOLD, GREEN, I+1, M, RESET);
      }
      
-     // Display results
+     // Show results summary
      clearScreen();
      displayMenu("RANGE SEARCH EFFICIENCY RESULTS");
      
@@ -2133,6 +2084,7 @@ void SimulateWordSearch(int M, int N)
      free(Word1);
      free(Word2);
      
+     // Help interpret the results
      printf("\n%s%s%sInterpretation: %s\n", BG_BLACK, BOLD, YELLOW, RESET);
      printf("- Ratio < 1.0: The Triplet approach is more efficient than BST0\n");
      printf("- Ratio > 1.0: BST0 is more efficient than the Triplet approach\n\n");

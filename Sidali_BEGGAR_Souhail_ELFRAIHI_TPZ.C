@@ -1566,13 +1566,14 @@ int Search_bst0 (Pointer_As *P, string255 *Word, Pointer_As *Result, int *PathLe
    
    // Iterative search with path length counting
    while (Temp != NULL) {
-     (*PathLength)++;  // Count this node visit
-     
      // Check if current node matches the word
      if (strcmp(*Word, Node_value_As(Temp)) == 0) {
        *Result = Temp;
        break;
      }
+     
+     // Count this LC or RC operation
+     (*PathLength)++;
      
      // Navigate to next node
      if (strcmp(*Word, Node_value_As(Temp)) < 0) {
@@ -1589,62 +1590,73 @@ int Search_bst_triplet(Pointer_As *P1, Pointer_As *P2, Pointer_As *P3, string255
   {
     /** Local variables **/
     int PathLength = 0;
-    int TempLength = 0;
     
     /** Body of function **/
    *Result = NULL;
    
    // Choose which BST to search based on first character
    if ((strcmp(Caract(*Word, 1), "X") == 0) || (strcmp(Caract(*Word, 1), "Y") == 0) || (strcmp(Caract(*Word, 1), "a") == 0)) {
-     PathLength = 1; // Initial decision counts as one step
+     // Search in BST1
      Pointer_As Temp = *P1;
      while (Temp != NULL) {
-       TempLength++;
+       // Check if current node matches the word
        if (strcmp(*Word, Node_value_As(Temp)) == 0) {
          *Result = Temp;
          break;
        }
+       
+       // Count this LC or RC operation
+       PathLength++;
+       
+       // Navigate to next node
        if (strcmp(*Word, Node_value_As(Temp)) < 0) {
          Temp = Lc_As(Temp);
        } else {
          Temp = Rc_As(Temp);
        }
      }
-     PathLength += TempLength;
    }
    else if (strcmp(Caract(*Word, 1), "a") > 0) {
-     PathLength = 1; // Initial decision counts as one step
+     // Search in BST2
      Pointer_As Temp = *P2;
      while (Temp != NULL) {
-       TempLength++;
+       // Check if current node matches the word
        if (strcmp(*Word, Node_value_As(Temp)) == 0) {
          *Result = Temp;
          break;
        }
+       
+       // Count this LC or RC operation
+       PathLength++;
+       
+       // Navigate to next node
        if (strcmp(*Word, Node_value_As(Temp)) < 0) {
          Temp = Lc_As(Temp);
        } else {
          Temp = Rc_As(Temp);
        }
      }
-     PathLength += TempLength;
    }
    else {
-     PathLength = 1; // Initial decision counts as one step
+     // Search in BST3
      Pointer_As Temp = *P3;
      while (Temp != NULL) {
-       TempLength++;
+       // Check if current node matches the word
        if (strcmp(*Word, Node_value_As(Temp)) == 0) {
          *Result = Temp;
          break;
        }
+       
+       // Count this LC or RC operation
+       PathLength++;
+       
+       // Navigate to next node
        if (strcmp(*Word, Node_value_As(Temp)) < 0) {
          Temp = Lc_As(Temp);
        } else {
          Temp = Rc_As(Temp);
        }
      }
-     PathLength += TempLength;
    }
    
    return PathLength;
@@ -1656,17 +1668,16 @@ int Range_search_bst0(Pointer_As *Bst0, string255 *Word_1, string255 *Word_2, in
     Pointer_As Result_node=NULL;
     Pointer_As Current_node=NULL;
     bool Upper_bound;
-    int TempPathLength = 0;
-    int rangeNodesCount = 0;
+    int SearchPathLength = 0;
+    int RangeOpsCount = 0;
     
     /** Body of function **/
    // Initialize node traversal counter
    *NodesTraversed = 0;
    
-   // Find the starting node
-   TempPathLength = 0;
-   Search_bst0(Bst0, Word_1, &Result_node, &TempPathLength);
-   *NodesTraversed = TempPathLength;
+   // Find the starting node - count LC and RC operations
+   Search_bst0(Bst0, Word_1, &Result_node, &SearchPathLength);
+   *NodesTraversed = SearchPathLength;
    
    if (Result_node == NULL) {
      return *NodesTraversed;
@@ -1676,24 +1687,23 @@ int Range_search_bst0(Pointer_As *Bst0, string255 *Word_1, string255 *Word_2, in
    Current_node = Result_node;
    Upper_bound = False;
    
-   // Count nodes in the range
+   // Count operations in the range traversal
    while ((Current_node != NULL) && (!Upper_bound)) {
-     // Starting node was already counted in Search_bst0
-     if (Current_node != Result_node) {
-       rangeNodesCount++;  // Count this node
-     }
-     
+     // Check if we've reached the upper bound
      if (strcmp(Node_value_As(Current_node), *Word_2) == 0) {
        Upper_bound = True;
      } else {
+       // Count the operation to get to the next node
+       RangeOpsCount++;
+       
        // Get next inorder node
        Pointer_As Temp_node = Current_node;
        Current_node = Next_inorder(&Temp_node);
      }
    }
    
-   // Just add the number of nodes in the range
-   *NodesTraversed += rangeNodesCount;
+   // Add the range traversal operations to total
+   *NodesTraversed += RangeOpsCount;
    
    return *NodesTraversed;
   }
@@ -1704,47 +1714,38 @@ int Range_search_triplet(Pointer_As *Bst1, Pointer_As *Bst2, Pointer_As *Bst3, s
     Pointer_As Result_node=NULL;
     Pointer_As Current_node=NULL;
     bool Upper_bound;
-    int NodesTraversed = 0;
-    string2 first_char;
+    int SearchPathLength = 0;
+    int RangeOpsCount = 0;
     
     /** Body of function **/
-   // Find the starting node using triplet search (already counts the decision step)
-   NodesTraversed = Search_bst_triplet(Bst1, Bst2, Bst3, Word_1, &Result_node);
+   // Find the starting node using triplet search - count LC and RC operations
+   SearchPathLength = Search_bst_triplet(Bst1, Bst2, Bst3, Word_1, &Result_node);
    
    if (Result_node == NULL) {
-     return NodesTraversed;
+     return SearchPathLength;
    }
    
    // Make a copy of the starting node
    Current_node = Result_node;
    Upper_bound = False;
    
-   // First node was already counted in Search_bst_triplet
-   int rangeNodesCount = 0;
-   
-   // Count nodes in the range
+   // Count operations in the range traversal
    while ((Current_node != NULL) && (!Upper_bound)) {
-     // Don't count the starting node again since it was already counted
-     if (Current_node != Result_node) {
-       rangeNodesCount++;
-     }
-     
+     // Check if we've reached the upper bound
      if (strcmp(Node_value_As(Current_node), *Word_2) == 0) {
        Upper_bound = True;
      } else {
+       // Count the operation to get to the next node
+       RangeOpsCount++;
+       
        // Get next inorder node
        Pointer_As Temp_node = Current_node;
        Current_node = Next_inorder(&Temp_node);
      }
    }
    
-   // Add overhead cost for each node traversed in range search
-   // For BST0, we just traverse Next_inorder for each node
-   // For Triplet approach, we need to verify which tree contains the next node
-   // and potentially do some additional comparison
-   NodesTraversed += rangeNodesCount;
-   
-   return NodesTraversed;
+   // Return total operations: search path + range traversal
+   return SearchPathLength + RangeOpsCount;
   }
 /*------------------------------------------------------------------------------------------*/
 

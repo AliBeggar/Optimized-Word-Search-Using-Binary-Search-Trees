@@ -400,7 +400,7 @@
                        Curr_depth := Curr_depth - 1 ;
                    ENDWHILE ;
                ELSE
-                   IF ( First_char > 'a' )
+                   IF ( ( First_char > 'a' ) OR ( First_char = 'Z' ) )
                        WHILE ( PARENT ( N ) <> NULL )
                            IF ( N = RC ( PARENT ( N ) ) )
                                CALL Left_rotate ( PARENT ( N ) , N ) ;

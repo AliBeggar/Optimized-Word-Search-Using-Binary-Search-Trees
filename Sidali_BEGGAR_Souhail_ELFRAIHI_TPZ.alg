@@ -1,3 +1,4 @@
+
    LET
        Cmpt : INTEGER ;
        Search_word , Word1 , Word2 : STRING ;
@@ -185,8 +186,7 @@
            ENDIF ;
        ENDWHILE ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Create_file ( F , Lines )
    LET
        F : FILE OF STRINGS BUFFER S ;
@@ -199,8 +199,7 @@
        EFOR ;
        CLOSE ( F ) ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Create_node ( P , Word )
    LET
        P : BST OF STRING ;
@@ -212,8 +211,7 @@
        ASS_RC ( P , NULL ) ;
        ASS_LC ( P , NULL ) ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    FUNCTION Is_xyz ( R ) : BOOLEAN ;
    LET
        R : BST OF STRING ;
@@ -233,8 +231,7 @@
            ENDIF ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Insert_bst ( P , N , Word )
    LET
        P , N : BST OF STRING ;
@@ -267,12 +264,11 @@
            ENDIF ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Left_rotate ( P , Q )
    LET
        P , Q : BST OF STRING ;
-       /* P is the parent of Q - standard left rotation for rebalancing */
+      /* P is the parent of Q - standard left rotation for rebalancing */
    BEGIN
        ASS_RC ( P , LC ( Q ) ) ;
        IF ( LC ( Q ) <> NULL )
@@ -289,12 +285,11 @@
        ENDIF ;
        ASS_PARENT ( P , Q ) ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Right_rotate ( P , Q )
    LET
        P , Q : BST OF STRING ;
-       /* P is the parent of Q - mirror of left rotation */
+      /* P is the parent of Q - mirror of left rotation */
    BEGIN
        ASS_LC ( P , RC ( Q ) ) ;
        IF ( RC ( Q ) <> NULL )
@@ -311,8 +306,7 @@
        ENDIF ;
        ASS_PARENT ( P , Q ) ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    FUNCTION Depth ( P ) : INTEGER ;
    LET
        P : BST OF STRINGS ;
@@ -326,8 +320,7 @@
            Depth := MAX ( Left_depth , Right_depth ) + 1 ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Inorder_bst ( P )
    LET
        P : BST OF STRING ;
@@ -338,8 +331,7 @@
            CALL Inorder_bst ( RC ( P ) ) ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Inorder_count ( P , Counter )
    LET
        P : BST OF STRING ;
@@ -351,8 +343,7 @@
            CALL Inorder_count ( RC ( P ) , Counter ) ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Create_bst1 ( Bst1 , F , Lines )
    LET
        Bst1 , N : BST OF STRING ;
@@ -363,7 +354,7 @@
        FOR I := 1 , Lines
            READSEQ ( F , Word ) ;
            CALL Insert_bst ( Bst1 , N , Word ) ;
-           /* BST-1: Priority to XYZ nodes - move them to root */
+          /* BST-1: Priority to XYZ nodes - move them to root */
            IF ( Is_xyz ( N ) )
                WHILE ( PARENT ( N ) <> NULL )
                    IF ( N = RC ( PARENT ( N ) ) )
@@ -377,8 +368,7 @@
        EFOR ;
        CLOSE ( F ) ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Create_bst2 ( Bst2 , F , Lines )
    LET
        Bst2 , N , Temp : BST OF STRING ;
@@ -392,16 +382,16 @@
            CALL Insert_bst ( Bst2 , N , Word ) ;
            IF ( N <> NULL )
                First_char := CHARACT ( Word , 1 ) ;
-               /* BST-2: XYZ nodes halfway up, other special chars at root */
+              /* BST-2: XYZ nodes halfway up, other special chars at root */
                IF ( ( First_char = 'X' ) OR ( First_char = 'Y' ) OR ( First_char = 'a' ) )
-                   /* Calculate current node depth */
+              /* Calculate current node depth */
                    Curr_depth := 0 ;
                    Temp := N ;
                    WHILE ( PARENT ( Temp ) <> NULL )
                        Curr_depth := Curr_depth + 1 ;
                        Temp := PARENT ( Temp ) ;
                    ENDWHILE ;
-                   /* Move XYZ nodes to halfway depth */
+                  /* Move XYZ nodes to halfway depth */
                    Target_depth := Curr_depth / 2 ;
                    WHILE ( ( PARENT ( N ) <> NULL ) AND ( Curr_depth > Target_depth ) )
                        IF ( N = RC ( PARENT ( N ) ) )
@@ -412,7 +402,7 @@
                        Curr_depth := Curr_depth - 1 ;
                    ENDWHILE ;
                ELSE
-                   /* Nodes > 'a' or Z go to root */
+              /* Nodes > 'a' or Z go to root */
                    IF ( ( First_char > 'a' ) OR ( First_char = 'Z' ) )
                        WHILE ( PARENT ( N ) <> NULL )
                            IF ( N = RC ( PARENT ( N ) ) )
@@ -428,8 +418,7 @@
        EFOR ;
        CLOSE ( F ) ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Create_bst3 ( Bst3 , F , Lines )
    LET
        Bst3 , N : BST OF STRING ;
@@ -440,7 +429,7 @@
        FOR I := 1 , Lines
            READSEQ ( F , Word ) ;
            CALL Insert_bst ( Bst3 , N , Word ) ;
-           /* BST-3: Opposite of BST-1, give priority to non-XYZ nodes */
+          /* BST-3: Opposite of BST-1, give priority to non-XYZ nodes */
            IF ( NOT ( Is_xyz ( N ) ) )
                WHILE ( PARENT ( N ) <> NULL )
                    IF ( N = RC ( PARENT ( N ) ) )
@@ -454,8 +443,7 @@
        EFOR ;
        CLOSE ( F ) ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Xyz_in_level ( R )
    LET
        R , N : BST OF STRING ;
@@ -463,7 +451,7 @@
        L : QUEUE OF INTEGER ;
        Cmpt , Level , Current_lvl : INTEGER ;
    BEGIN
-       /* Level-order traversal to count XYZ nodes by level */
+  /* Level-order traversal to count XYZ nodes by level */
        CREATEQUEUE ( Q ) ;
        CREATEQUEUE ( L ) ;
        Level := 1 ;
@@ -499,14 +487,13 @@
        ENDWHILE ;
        WRITE ( 'LEVEL ' , Current_lvl , ' : ' , Cmpt ) ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Count_xyz ( N , Cmpt )
    LET
        N : BST OF STRING ;
        Cmpt : INTEGER ;
    BEGIN
-       /* Counts X,Y,Z nodes - BST-1 is best for this */
+  /* Counts X,Y,Z nodes - BST-1 is best for this */
        IF ( N <> NULL )
            IF ( Is_xyz ( N ) )
                CALL Count_xyz ( LC ( N ) , Cmpt ) ;
@@ -517,15 +504,14 @@
            ENDIF ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Search_bst1 ( P , Word , Result )
    LET
        Result : BST OF STRING ;
        P : POINTER TO BST OF STRING ;
        Word : STRING ;
    BEGIN
-       /* Search for words in BST-1 (good for XYZ words) */
+  /* Search for words in BST-1 (good for XYZ words) */
        IF ( P <> NULL )
            IF ( Is_xyz ( P ) )
                CALL Search_bst1 ( LC ( P ) , Word , Result ) ;
@@ -539,15 +525,14 @@
            ENDIF ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Search_bst2 ( P , Word , Result )
    LET
        Result : BST OF STRING ;
        P : POINTER TO BST OF STRING ;
        Word : STRING ;
    BEGIN
-       /* Search for words in BST-2 (good for non-XYZ words) */
+  /* Search for words in BST-2 (good for non-XYZ words) */
        IF ( P <> NULL )
            IF ( NOT Is_xyz ( P ) )
                CALL Search_bst2 ( LC ( P ) , Word , Result ) ;
@@ -561,15 +546,14 @@
            ENDIF ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Search_bst3 ( P , Word , Result )
    LET
        Result : BST OF STRING ;
        P : POINTER TO BST OF STRING ;
        Word : STRING ;
    BEGIN
-       /* Search for words in BST-3 (optimized for non-XYZ words) */
+  /* Search for words in BST-3 (optimized for non-XYZ words) */
        IF ( P <> NULL )
            IF ( NOT Is_xyz ( P ) )
                CALL Search_bst3 ( LC ( P ) , Word , Result ) ;
@@ -583,32 +567,30 @@
            ENDIF ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Single_word_search ( P1 , P2 , P3 , Word , Result )
    LET
        Result : BST OF STRING ;
        P1 , P2 , P3 : POINTER TO BST OF STRING ;
        Word : STRING ;
    BEGIN
-       /* Smart search - picks the right tree based on first letter */
+  /* Smart search - picks the right tree based on first letter */
        IF ( ( CHARACT ( Word , 1 ) = 'X' ) OR ( CHARACT ( Word , 1 ) = 'Y' ) OR ( CHARACT ( Word , 1 ) = 'a' ) )
            CALL Search_bst1 ( P1 , Word , Result ) ;
        ELSE
-           IF ( CHARACT ( Word , 1 ) > 'a' )
+           IF ( ( CHARACT ( Word , 1 ) > 'a' ) OR ( CHARACT ( Word , 1 ) = 'Z' ) )
                CALL Search_bst2 ( P2 , Word , Result ) ;
            ELSE
                CALL Search_bst3 ( P3 , Word , Result ) ;
            ENDIF ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    FUNCTION Next_inorder ( P ) : BST OF STRING ;
    LET
        P : BST OF STRING ;
    BEGIN
-       /* Gets the next node in inorder traversal - needed for range search */
+  /* Gets the next node in inorder traversal - needed for range search */
        IF ( P = NULL )
            Next_inorder := NULL ;
        ELSE
@@ -631,18 +613,17 @@
            ENDIF ;
        ENDIF ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Range_search ( Bst1 , Bst2 , Bst3 , Word_1 , Word_2 )
    LET
        Bst1 , Bst2 , Bst3 , Result_node : BST OF STRING ;
        Word_1 , Word_2 : STRING ;
        Upper_bound : BOOLEAN ;
    BEGIN
-       /* Finds the starting point with smart tree selection */
+  /* Finds the starting point with smart tree selection */
        CALL Single_word_search ( Bst1 , Bst2 , Bst3 , Word_1 , Result_node ) ;
        Upper_bound := FALSE ;
-       /* Traverse in order until upper bound or NULL */
+      /* Traverse in order until upper bound or NULL */
        WHILE ( ( Result_node <> NULL ) AND ( NOT Upper_bound ) )
            WRITE ( NODE_VALUE ( Result_node ) ) ;
            IF ( NODE_VALUE ( Result_node ) = Word_2 )
@@ -652,15 +633,14 @@
            ENDIF ;
        ENDWHILE ;
    END
-
-/*===================================================================== */
+  /*===================================================================== */
    ACTION Write_file ( F , Lines )
    LET
        F : FILE OF STRING BUFFER Buff ;
        Word : STRING ;
        Lines , I : INTEGER ;
    BEGIN
-       /* Creates a file with manually entered words */
+  /* Creates a file with manually entered words */
        OPEN ( F , 'F.txt' , 'N' ) ;
        FOR I := 1 , Lines
            WRITE ( 'Type a word: ' ) ;
